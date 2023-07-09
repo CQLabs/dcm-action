@@ -146,7 +146,7 @@ function run() {
             const reports = yield (0, analyze_1.analyze)(options);
             const conclusion = (0, analyze_1.getConclusion)(reports, options);
             // get summary
-            const reporter = new reporter_1.Reporter(github.getOctokit(options.token));
+            const reporter = new reporter_1.Reporter(github.getOctokit(options.token, { auth: options.pat }));
             const runner = yield reporter.create(options.reportTitle, conclusion);
             yield reporter.reportIssues(reports, runner.data.id, conclusion);
             core.endGroup();
