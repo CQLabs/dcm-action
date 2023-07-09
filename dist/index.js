@@ -148,7 +148,7 @@ function run() {
             // get summary
             const reporter = new reporter_1.Reporter(github.getOctokit(options.token));
             const runner = yield reporter.create(options.reportTitle, conclusion);
-            yield reporter.reportIssues(reports, runner.data.id);
+            yield reporter.reportIssues(reports, runner.data.id, conclusion);
             core.endGroup();
             if (conclusion === 'failure') {
                 core.setFailed('Found fatal issues!');
@@ -319,7 +319,7 @@ class Reporter {
             });
         });
     }
-    reportIssues(reports, runnerId) {
+    reportIssues(reports, runnerId, conclusion) {
         return __awaiter(this, void 0, void 0, function* () {
             const annotationsToSend = [];
             try {
@@ -337,6 +337,7 @@ class Reporter {
                                     check_run_id: runnerId,
                                     status: 'completed',
                                     completed_at: new Date(Date.now()).toISOString(),
+                                    conclusion,
                                     output: {
                                         title: 'DCM analysis report',
                                         summary: '',
@@ -354,6 +355,7 @@ class Reporter {
                     check_run_id: runnerId,
                     status: 'completed',
                     completed_at: new Date(Date.now()).toISOString(),
+                    conclusion,
                     output: {
                         title: 'DCM analysis report',
                         summary: '',
@@ -382,9 +384,8 @@ class Reporter {
     //   const pullRequest = github.context.issue.number;
     // }
     cancelRun(runnerId, error) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            core.info(`Checkrun is cancelled due to ${error.message} ${(_a = error.stack) !== null && _a !== void 0 ? _a : ''}`);
+            core.info(`Checkrun is cancelled due to ${error.message}.`);
             yield this.octokit.rest.checks.update({
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
