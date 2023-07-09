@@ -2,6 +2,8 @@ import * as core from '@actions/core';
 
 export type Options = {
   readonly token: string;
+  readonly ciKey: string;
+  readonly email: string;
   readonly pat: string;
   readonly folders: string;
   readonly relativePath: string;
@@ -16,6 +18,8 @@ export type Options = {
 export function getOptions(): Options {
   return {
     token: core.getInput('github_token', { required: true }),
+    ciKey: core.getInput('ci_key', { required: true }),
+    email: core.getInput('email', { required: true }),
     pat: core.getInput('github_pat'),
     folders: core.getInput('folders'),
     relativePath: core.getInput('relative_path'),

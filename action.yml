@@ -14,6 +14,12 @@ inputs:
     description: 'Personal access token. Required if you had private GitHub repository in the package dependencies.'
     required: false
     default: ''
+  ci_key:
+    description: ''
+    required: true
+  email:
+    description: ''
+    required: true
   folders:
     description: 'List of folders whose contents will be scanned.'
     required: false

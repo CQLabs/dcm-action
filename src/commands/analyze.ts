@@ -35,7 +35,12 @@ export type Location = {
 };
 
 export async function analyze(options: Options): Promise<readonly Report[]> {
-  const execOptions = ['analyze', '--reporter=json'];
+  const execOptions = [
+    'analyze',
+    '--reporter=json',
+    `--ci-key=${options.ciKey}`,
+    `--email=${options.email}`,
+  ];
   if (options.fatalWarnings) {
     execOptions.push('--fatal-warnings');
   }
@@ -47,7 +52,7 @@ export async function analyze(options: Options): Promise<readonly Report[]> {
   }
   execOptions.push(options.folders);
 
-  core.info(`Running dcm analyze with ${execOptions.join(', ')}`);
+  core.info(`Running dcm ${execOptions.join(' ')}`);
 
   const jsonOutput = await exec.getExecOutput('dcm', execOptions, {
     silent: true,
