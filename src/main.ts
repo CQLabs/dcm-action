@@ -10,13 +10,14 @@ async function run(): Promise<void> {
     await io.which('dcm', true);
 
     const options = getOptions();
+    const tokenToUse = options.pat.length > 0 ? options.pat : options.token;
 
     core.startGroup('Analyzing');
     const reports = await analyze(options);
     const conclusion = getConclusion(reports, options);
     // get summary
 
-    const reporter = new Reporter(github.getOctokit(options.token, { auth: options.pat }));
+    const reporter = new Reporter(github.getOctokit(tokenToUse));
     const runner = await reporter.create(options.reportTitle, conclusion);
     await reporter.reportIssues(reports, runner.data.id, conclusion);
     core.endGroup();
