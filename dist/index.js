@@ -220,7 +220,7 @@ function run() {
             const conclusion = (0, analyze_1.getConclusion)(reports, options);
             // get summary
             const reporter = new reporter_1.Reporter(github.getOctokit(options.token));
-            const runner = yield reporter.create(options.reportTitle, conclusion);
+            const runner = yield reporter.create(options.reportTitle);
             yield reporter.reportIssues(reports, runner.data.id, conclusion);
             yield reporter.postComment(`## Hello`);
             core.endGroup();
@@ -380,7 +380,7 @@ class Reporter {
     constructor(octokit) {
         this.octokit = octokit;
     }
-    create(reportTitle, conclusion) {
+    create(reportTitle) {
         return __awaiter(this, void 0, void 0, function* () {
             return this.octokit.rest.checks.create({
                 owner: github.context.repo.owner,
@@ -389,12 +389,19 @@ class Reporter {
                 head_sha: github.context.sha,
                 status: 'queued',
                 started_at: new Date(Date.now()).toISOString(),
-                conclusion,
+                external_id: 'test',
             });
         });
     }
     reportIssues(reports, runnerId, conclusion) {
         return __awaiter(this, void 0, void 0, function* () {
+            yield this.octokit.rest.checks.update({
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                check_run_id: runnerId,
+                status: 'in_progress',
+                started_at: new Date(Date.now()).toISOString(),
+            });
             const annotationsToSend = [];
             try {
                 for (const report of reports) {
