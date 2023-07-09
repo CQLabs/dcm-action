@@ -142,11 +142,12 @@ function run() {
         try {
             yield io.which('dcm', true);
             const options = (0, options_1.getOptions)();
+            const tokenToUse = options.pat.length > 0 ? options.pat : options.token;
             core.startGroup('Analyzing');
             const reports = yield (0, analyze_1.analyze)(options);
             const conclusion = (0, analyze_1.getConclusion)(reports, options);
             // get summary
-            const reporter = new reporter_1.Reporter(github.getOctokit(options.token, { auth: options.pat }));
+            const reporter = new reporter_1.Reporter(github.getOctokit(tokenToUse));
             const runner = yield reporter.create(options.reportTitle, conclusion);
             yield reporter.reportIssues(reports, runner.data.id, conclusion);
             core.endGroup();
