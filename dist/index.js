@@ -324,23 +324,27 @@ class Reporter {
             const annotationsToSend = [];
             try {
                 for (const report of reports) {
-                    for (const issue of report.issues) {
-                        const annotation = (0, mapper_1.issueToAnnotation)(issue, report.path);
-                        annotationsToSend.push(annotation);
-                        if (annotationsToSend.length === Reporter.apiLimit) {
-                            yield this.octokit.rest.checks.update({
-                                owner: github.context.repo.owner,
-                                repo: github.context.repo.repo,
-                                check_run_id: runnerId,
-                                status: 'completed',
-                                completed_at: new Date(Date.now()).toISOString(),
-                                output: {
-                                    title: 'DCM analysis report',
-                                    summary: '',
-                                    annotations: annotationsToSend,
-                                },
-                            });
-                            annotationsToSend.length = 0;
+                    if (report.issues.length) {
+                        core.info(`\n${report.path}:`);
+                        for (const issue of report.issues) {
+                            this.logIssue(issue, report.path);
+                            const annotation = (0, mapper_1.issueToAnnotation)(issue, report.path);
+                            annotationsToSend.push(annotation);
+                            if (annotationsToSend.length === Reporter.apiLimit) {
+                                yield this.octokit.rest.checks.update({
+                                    owner: github.context.repo.owner,
+                                    repo: github.context.repo.repo,
+                                    check_run_id: runnerId,
+                                    status: 'completed',
+                                    completed_at: new Date(Date.now()).toISOString(),
+                                    output: {
+                                        title: 'DCM analysis report',
+                                        summary: '',
+                                        annotations: annotationsToSend,
+                                    },
+                                });
+                                annotationsToSend.length = 0;
+                            }
                         }
                     }
                 }
@@ -395,6 +399,13 @@ Check your logs for more information.`,
                 },
             });
         });
+    }
+    logIssue(issue, path) {
+        const padding = ''.padStart(10);
+        core.info(`${issue.severity.padEnd(10).toUpperCase()}${issue.message}
+${padding}at ${path}:${issue.codeSpan.start.line}${issue.codeSpan.start.column}
+${padding}${issue.ruleId} : ${issue.documentation}
+`);
     }
 }
 exports.Reporter = Reporter;
