@@ -46,9 +46,10 @@ function analyze(options) {
     return __awaiter(this, void 0, void 0, function* () {
         const execOptions = [
             'analyze',
-            '--reporter=json',
             `--ci-key=${options.ciKey}`,
             `--email=${options.email}`,
+            '--reporter=json',
+            '--no-congratulate',
         ];
         if (options.fatalWarnings) {
             execOptions.push('--fatal-warnings');
