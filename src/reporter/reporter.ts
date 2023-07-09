@@ -114,7 +114,7 @@ Check your logs for more information.`,
     const padding = ''.padStart(10);
 
     core.info(`${issue.severity.padEnd(10).toUpperCase()}${issue.message}
-${padding}at ${path}:${issue.codeSpan.start.line}${issue.codeSpan.start.column}
+${padding}at ${path}:${issue.codeSpan.start.line}:${issue.codeSpan.start.column}
 ${padding}${issue.ruleId} : ${issue.documentation}
 `);
   }
