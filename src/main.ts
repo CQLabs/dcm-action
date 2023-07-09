@@ -1,17 +1,32 @@
-import * as core from '@actions/core'
+import * as core from '@actions/core';
+import * as github from '@actions/github';
+import * as io from '@actions/io';
+import { analyze, getConclusion } from './commands/analyze';
+import { getOptions } from './options';
+import { Reporter } from './reporter/reporter';
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
+    await io.which('dcm', true);
 
-    core.debug(new Date().toTimeString())
-    core.debug(new Date().toTimeString())
+    const options = getOptions();
 
-    core.setOutput('time', new Date().toTimeString())
+    core.startGroup('Analyzing');
+    const reports = await analyze(options);
+    const conclusion = getConclusion(reports, options);
+    // get summary
+
+    const reporter = new Reporter(github.getOctokit(options.token));
+    const runner = await reporter.create(options.reportTitle, conclusion);
+    await reporter.reportIssues(reports, runner.data.id);
+    core.endGroup();
+
+    if (conclusion === 'failure') {
+      core.setFailed('Found fatal issues!');
+    }
   } catch (error) {
-    if (error instanceof Error) core.setFailed(error.message)
+    if (error instanceof Error) core.setFailed(error.message);
   }
 }
 
-run()
+run();
