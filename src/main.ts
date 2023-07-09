@@ -20,7 +20,7 @@ async function run(): Promise<void> {
     // get summary
 
     const reporter = new Reporter(github.getOctokit(options.token));
-    const runner = await reporter.create(options.reportTitle, conclusion);
+    const runner = await reporter.create(options.reportTitle);
     await reporter.reportIssues(reports, runner.data.id, conclusion);
     await reporter.postComment(`## Hello`);
 

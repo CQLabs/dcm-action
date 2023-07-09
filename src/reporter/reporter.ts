@@ -11,10 +11,7 @@ export class Reporter {
 
   constructor(private readonly octokit: ReturnType<typeof github.getOctokit>) {}
 
-  public async create(
-    reportTitle: string,
-    conclusion: string,
-  ): ReturnType<typeof this.octokit.rest.checks.create> {
+  public async create(reportTitle: string): ReturnType<typeof this.octokit.rest.checks.create> {
     return this.octokit.rest.checks.create({
       owner: github.context.repo.owner,
       repo: github.context.repo.repo,
@@ -22,7 +19,7 @@ export class Reporter {
       head_sha: github.context.sha,
       status: 'queued',
       started_at: new Date(Date.now()).toISOString(),
-      conclusion,
+      external_id: 'test',
     });
   }
 
@@ -31,6 +28,14 @@ export class Reporter {
     runnerId: number,
     conclusion: string,
   ): Promise<void> {
+    await this.octokit.rest.checks.update({
+      owner: github.context.repo.owner,
+      repo: github.context.repo.repo,
+      check_run_id: runnerId,
+      status: 'in_progress',
+      started_at: new Date(Date.now()).toISOString(),
+    });
+
     const annotationsToSend: Annotation[] = [];
 
     try {
