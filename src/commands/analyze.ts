@@ -47,17 +47,20 @@ export async function analyze(options: Options): Promise<readonly Report[]> {
   }
   execOptions.push(options.folders);
 
+  core.info(`Running dcm analyze with ${execOptions.join(', ')}`);
+
   const jsonOutput = await exec.getExecOutput('dcm', execOptions, {
     silent: true,
     ignoreReturnCode: true,
   });
+  const trimmed = jsonOutput.stdout.trim();
 
   try {
-    const output = JSON.parse(jsonOutput.stdout.trim()) as JsonOutput;
+    const output = JSON.parse(trimmed) as JsonOutput;
     return output.records;
   } catch (error) {
     if (error instanceof Error) {
-      core.error(`Failed to parse DCM output: ${error.message}`);
+      core.setFailed(`Failed to parse DCM output: ${error.message},\n${trimmed}`);
     }
 
     return [];
