@@ -55,17 +55,19 @@ function analyze(options) {
             execOptions.push('--fatal-performance');
         }
         execOptions.push(options.folders);
+        core.info(`Running dcm analyze with ${execOptions.join(', ')}`);
         const jsonOutput = yield exec.getExecOutput('dcm', execOptions, {
             silent: true,
             ignoreReturnCode: true,
         });
+        const trimmed = jsonOutput.stdout.trim();
         try {
-            const output = JSON.parse(jsonOutput.stdout.trim());
+            const output = JSON.parse(trimmed);
             return output.records;
         }
         catch (error) {
             if (error instanceof Error) {
-                core.error(`Failed to parse DCM output: ${error.message}`);
+                core.setFailed(`Failed to parse DCM output: ${error.message},\n${trimmed}`);
             }
             return [];
         }
