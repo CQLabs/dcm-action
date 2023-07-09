@@ -16,7 +16,7 @@ async function run(): Promise<void> {
     const conclusion = getConclusion(reports, options);
     // get summary
 
-    const reporter = new Reporter(github.getOctokit(options.token));
+    const reporter = new Reporter(github.getOctokit(options.token, { auth: options.pat }));
     const runner = await reporter.create(options.reportTitle, conclusion);
     await reporter.reportIssues(reports, runner.data.id, conclusion);
     core.endGroup();
