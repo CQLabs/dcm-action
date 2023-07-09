@@ -382,8 +382,9 @@ class Reporter {
     //   const pullRequest = github.context.issue.number;
     // }
     cancelRun(runnerId, error) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            core.debug("Checkrun is cancelled. Conclusion is 'CANCELLED'.");
+            core.info(`Checkrun is cancelled due to ${error.message} ${(_a = error.stack) !== null && _a !== void 0 ? _a : ''}`);
             yield this.octokit.rest.checks.update({
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
@@ -403,7 +404,7 @@ Check your logs for more information.`,
     logIssue(issue, path) {
         const padding = ''.padStart(10);
         core.info(`${issue.severity.padEnd(10).toUpperCase()}${issue.message}
-${padding}at ${path}:${issue.codeSpan.start.line}${issue.codeSpan.start.column}
+${padding}at ${path}:${issue.codeSpan.start.line}:${issue.codeSpan.start.column}
 ${padding}${issue.ruleId} : ${issue.documentation}
 `);
     }
