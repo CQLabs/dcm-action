@@ -1,6 +1,77 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 9725:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.setGitHubAuth = void 0;
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-await-in-loop */
+const core = __importStar(__nccwpck_require__(2186));
+const exec = __importStar(__nccwpck_require__(1514));
+// eslint-disable-next-line import/prefer-default-export
+function setGitHubAuth(pat) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!pat.length)
+            return;
+        core.startGroup('Configuring GitHub Auth');
+        const hosts = new Map([
+            ['https://github.com/', 'https://x-access-token:$token@github.com/'],
+            ['git@github.com:', 'https://x-access-token:$token@github.com/'],
+        ]);
+        for (const [key, value] of hosts) {
+            const gitResult = yield exec.getExecOutput('git', [
+                'config',
+                '--global',
+                `url.${value}.insteadOf`,
+                key,
+            ]);
+            core.debug(`Rewrite any "${key}" to "${value}"`);
+            core.debug(`return code ${gitResult.exitCode}`);
+        }
+        core.endGroup();
+    });
+}
+exports.setGitHubAuth = setGitHubAuth;
+
+
+/***/ }),
+
 /***/ 6875:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -137,17 +208,18 @@ const io = __importStar(__nccwpck_require__(7436));
 const analyze_1 = __nccwpck_require__(6875);
 const options_1 = __nccwpck_require__(1353);
 const reporter_1 = __nccwpck_require__(2591);
+const auth_1 = __nccwpck_require__(9725);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield io.which('dcm', true);
             const options = (0, options_1.getOptions)();
-            const tokenToUse = options.pat.length > 0 ? options.pat : options.token;
+            (0, auth_1.setGitHubAuth)(options.pat);
             core.startGroup('Analyzing');
             const reports = yield (0, analyze_1.analyze)(options);
             const conclusion = (0, analyze_1.getConclusion)(reports, options);
             // get summary
-            const reporter = new reporter_1.Reporter(github.getOctokit(tokenToUse));
+            const reporter = new reporter_1.Reporter(github.getOctokit(options.token));
             const runner = yield reporter.create(options.reportTitle, conclusion);
             yield reporter.reportIssues(reports, runner.data.id, conclusion);
             core.endGroup();
