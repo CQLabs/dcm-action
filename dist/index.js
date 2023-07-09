@@ -388,7 +388,6 @@ class Reporter {
                 name: reportTitle,
                 head_sha: github.context.sha,
                 status: 'queued',
-                started_at: new Date(Date.now()).toISOString(),
                 external_id: 'test',
             });
         });
@@ -421,8 +420,8 @@ class Reporter {
                                     conclusion,
                                     output: {
                                         title: 'DCM analysis report',
-                                        summary: '',
-                                        annotations: annotationsToSend,
+                                        summary: 'Summary',
+                                        annotations: [...annotationsToSend],
                                     },
                                 });
                                 annotationsToSend.length = 0;
@@ -439,12 +438,14 @@ class Reporter {
                     conclusion,
                     output: {
                         title: 'DCM analysis report',
-                        summary: '',
-                        annotations: annotationsToSend.length ? annotationsToSend : undefined,
+                        summary: 'Summary',
+                        annotations: annotationsToSend.length ? [...annotationsToSend] : undefined,
                     },
                 });
             }
             catch (error) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
+                core.info(error.toString());
                 if (error instanceof Error) {
                     try {
                         yield this.cancelRun(runnerId, error);
