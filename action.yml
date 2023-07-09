@@ -7,10 +7,52 @@ branding:
   icon: 'search'
 
 inputs:
-  milliseconds: # change this
+  github_token:
+    description: 'Token to connect to GitHub. Use secrets.GITHUB_TOKEN.'
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+  github_pat:
+    description: 'Personal access token. Required if you had private GitHub repository in the package dependencies.'
+    required: false
+    default: ''
+  folders:
+    description: 'List of folders whose contents will be scanned.'
+    required: false
+    default: 'lib'
+  relative_path:
+    description: 'Path of the package relatively to the root of the repository.'
+    required: false
+    default: ''
+  pull_request_comment:
+    description: 'Publish detailed report commented directly into your pull request.'
+    required: false
+    default: 'false'
+  analyze_report_title_pattern:
+    description: 'Configurable analyze report title pattern.'
+    required: false
+    default: 'Dart Code Metrics analyze report of $packageName.'
+  fatal_warnings:
+    description: 'Treat warning level issues as fatal.'
+    required: false
+    default: 'false'
+  fatal_performance:
+    description: 'Treat performance level issues as fatal.'
+    required: false
+    default: 'false'
+  fatal_style:
+    description: 'Treat style level issues as fatal.'
+    required: false
+    default: 'false'
+  check_unused_files:
+    description: 'Additional scan for find unused files in package.'
+    required: false
+    default: 'false'
+  check_unused_files_folders:
+    description: 'List of folders whose contents will be scanned for find unused files.'
+    required: false
+  unused_files_report_title_pattern:
+    description: 'Configurable unused files report title pattern.'
+    required: false
+    default: 'Dart Code Metrics unused files report of $packageName.'
 
 runs:
   using: 'node16'
