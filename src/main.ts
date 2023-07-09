@@ -18,7 +18,7 @@ async function run(): Promise<void> {
 
     const reporter = new Reporter(github.getOctokit(options.token));
     const runner = await reporter.create(options.reportTitle, conclusion);
-    await reporter.reportIssues(reports, runner.data.id);
+    await reporter.reportIssues(reports, runner.data.id, conclusion);
     core.endGroup();
 
     if (conclusion === 'failure') {
