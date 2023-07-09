@@ -92,7 +92,7 @@ export class Reporter {
   // }
 
   private async cancelRun(runnerId: number, error: Error): Promise<void> {
-    core.debug("Checkrun is cancelled. Conclusion is 'CANCELLED'.");
+    core.info(`Checkrun is cancelled due to ${error.message} ${error.stack ?? ''}`);
 
     await this.octokit.rest.checks.update({
       owner: github.context.repo.owner,
