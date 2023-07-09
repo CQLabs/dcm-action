@@ -37,9 +37,10 @@ export type Location = {
 export async function analyze(options: Options): Promise<readonly Report[]> {
   const execOptions = [
     'analyze',
-    '--reporter=json',
     `--ci-key=${options.ciKey}`,
     `--email=${options.email}`,
+    '--reporter=json',
+    '--no-congratulate',
   ];
   if (options.fatalWarnings) {
     execOptions.push('--fatal-warnings');
