@@ -44,7 +44,12 @@ const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 function analyze(options) {
     return __awaiter(this, void 0, void 0, function* () {
-        const execOptions = ['analyze', '--reporter=json'];
+        const execOptions = [
+            'analyze',
+            '--reporter=json',
+            `--ci-key=${options.ciKey}`,
+            `--email=${options.email}`,
+        ];
         if (options.fatalWarnings) {
             execOptions.push('--fatal-warnings');
         }
@@ -55,7 +60,7 @@ function analyze(options) {
             execOptions.push('--fatal-performance');
         }
         execOptions.push(options.folders);
-        core.info(`Running dcm analyze with ${execOptions.join(', ')}`);
+        core.info(`Running dcm ${execOptions.join(' ')}`);
         const jsonOutput = yield exec.getExecOutput('dcm', execOptions, {
             silent: true,
             ignoreReturnCode: true,
@@ -193,6 +198,8 @@ const core = __importStar(__nccwpck_require__(2186));
 function getOptions() {
     return {
         token: core.getInput('github_token', { required: true }),
+        ciKey: core.getInput('ci_key', { required: true }),
+        email: core.getInput('email', { required: true }),
         pat: core.getInput('github_pat'),
         folders: core.getInput('folders'),
         relativePath: core.getInput('relative_path'),
