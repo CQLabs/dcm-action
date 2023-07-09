@@ -222,6 +222,7 @@ function run() {
             const reporter = new reporter_1.Reporter(github.getOctokit(options.token));
             const runner = yield reporter.create(options.reportTitle, conclusion);
             yield reporter.reportIssues(reports, runner.data.id, conclusion);
+            yield reporter.postComment(`## Hello`);
             core.endGroup();
             if (conclusion === 'failure') {
                 core.setFailed('Found fatal issues!');
@@ -448,14 +449,18 @@ class Reporter {
                     }
                 }
             }
-            // if (addComment) {
-            //   await this.postComment();
-            // }
         });
     }
-    // private async postComment(commentText: string) {
-    //   const pullRequest = github.context.issue.number;
-    // }
+    postComment(commentText) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.octokit.rest.issues.createComment({
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                issue_number: github.context.issue.number,
+                body: commentText,
+            });
+        });
+    }
     cancelRun(runnerId, error) {
         return __awaiter(this, void 0, void 0, function* () {
             core.info(`Checkrun is cancelled due to ${error.message}.`);
