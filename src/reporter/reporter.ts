@@ -26,7 +26,11 @@ export class Reporter {
     });
   }
 
-  public async reportIssues(reports: readonly Report[], runnerId: number): Promise<void> {
+  public async reportIssues(
+    reports: readonly Report[],
+    runnerId: number,
+    conclusion: string,
+  ): Promise<void> {
     const annotationsToSend: Annotation[] = [];
 
     try {
@@ -46,6 +50,7 @@ export class Reporter {
                 check_run_id: runnerId,
                 status: 'completed',
                 completed_at: new Date(Date.now()).toISOString(),
+                conclusion,
                 output: {
                   title: 'DCM analysis report',
                   summary: '',
@@ -65,6 +70,7 @@ export class Reporter {
         check_run_id: runnerId,
         status: 'completed',
         completed_at: new Date(Date.now()).toISOString(),
+        conclusion,
         output: {
           title: 'DCM analysis report',
           summary: '',
