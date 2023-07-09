@@ -14,6 +14,7 @@ async function run(): Promise<void> {
     setGitHubAuth(options.pat);
 
     core.startGroup('Analyzing');
+
     const reports = await analyze(options);
     const conclusion = getConclusion(reports, options);
     // get summary
@@ -21,6 +22,8 @@ async function run(): Promise<void> {
     const reporter = new Reporter(github.getOctokit(options.token));
     const runner = await reporter.create(options.reportTitle, conclusion);
     await reporter.reportIssues(reports, runner.data.id, conclusion);
+    await reporter.postComment(`## Hello`);
+
     core.endGroup();
 
     if (conclusion === 'failure') {

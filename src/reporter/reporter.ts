@@ -14,7 +14,7 @@ export class Reporter {
   public async create(
     reportTitle: string,
     conclusion: string,
-  ): Promise<ReturnType<typeof this.octokit.rest.checks.create>> {
+  ): ReturnType<typeof this.octokit.rest.checks.create> {
     return this.octokit.rest.checks.create({
       owner: github.context.repo.owner,
       repo: github.context.repo.repo,
@@ -87,15 +87,18 @@ export class Reporter {
         }
       }
     }
-
-    // if (addComment) {
-    //   await this.postComment();
-    // }
   }
 
-  // private async postComment(commentText: string) {
-  //   const pullRequest = github.context.issue.number;
-  // }
+  public async postComment(
+    commentText: string,
+  ): ReturnType<typeof this.octokit.rest.issues.createComment> {
+    return this.octokit.rest.issues.createComment({
+      owner: github.context.repo.owner,
+      repo: github.context.repo.repo,
+      issue_number: github.context.issue.number,
+      body: commentText,
+    });
+  }
 
   private async cancelRun(runnerId: number, error: Error): Promise<void> {
     core.info(`Checkrun is cancelled due to ${error.message}.`);
