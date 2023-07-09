@@ -2,7 +2,7 @@
 /* eslint-disable no-restricted-syntax */
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { Report } from '../commands/analyze';
+import { Issue, Report } from '../commands/analyze';
 import { Annotation, issueToAnnotation } from './mapper';
 
 // eslint-disable-next-line import/prefer-default-export
@@ -31,25 +31,30 @@ export class Reporter {
 
     try {
       for (const report of reports) {
-        for (const issue of report.issues) {
-          const annotation = issueToAnnotation(issue, report.path);
-          annotationsToSend.push(annotation);
+        if (report.issues.length) {
+          core.info(`\n${report.path}:`);
+          for (const issue of report.issues) {
+            this.logIssue(issue, report.path);
 
-          if (annotationsToSend.length === Reporter.apiLimit) {
-            await this.octokit.rest.checks.update({
-              owner: github.context.repo.owner,
-              repo: github.context.repo.repo,
-              check_run_id: runnerId,
-              status: 'completed',
-              completed_at: new Date(Date.now()).toISOString(),
-              output: {
-                title: 'DCM analysis report',
-                summary: '',
-                annotations: annotationsToSend,
-              },
-            });
+            const annotation = issueToAnnotation(issue, report.path);
+            annotationsToSend.push(annotation);
 
-            annotationsToSend.length = 0;
+            if (annotationsToSend.length === Reporter.apiLimit) {
+              await this.octokit.rest.checks.update({
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                check_run_id: runnerId,
+                status: 'completed',
+                completed_at: new Date(Date.now()).toISOString(),
+                output: {
+                  title: 'DCM analysis report',
+                  summary: '',
+                  annotations: annotationsToSend,
+                },
+              });
+
+              annotationsToSend.length = 0;
+            }
           }
         }
       }
@@ -103,5 +108,14 @@ export class Reporter {
 Check your logs for more information.`,
       },
     });
+  }
+
+  private logIssue(issue: Issue, path: string): void {
+    const padding = ''.padStart(10);
+
+    core.info(`${issue.severity.padEnd(10).toUpperCase()}${issue.message}
+${padding}at ${path}:${issue.codeSpan.start.line}${issue.codeSpan.start.column}
+${padding}${issue.ruleId} : ${issue.documentation}
+`);
   }
 }
