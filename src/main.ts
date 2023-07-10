@@ -34,12 +34,13 @@ async function run(): Promise<void> {
     );
 
     if (options.addComment) {
+      const commentTitle = `## ${options.reportTitle}`;
       const commentBody = `${summary.replace(
         '## Summary',
-        `## ${options.reportTitle}`,
+        commentTitle,
       )}\n\nFull report: ${reportUrl}`;
 
-      await reporter.postComment(commentBody);
+      await reporter.postComment(commentTitle, commentBody);
     }
 
     core.endGroup();

@@ -121,9 +121,24 @@ export class Reporter {
     return completedRun.data.html_url ?? '';
   }
 
-  public async postComment(
-    commentText: string,
-  ): ReturnType<typeof this.octokit.rest.issues.createComment> {
+  public async postComment(commentTitle: string, commentText: string): Promise<unknown> {
+    const existingComment = (
+      await this.octokit.rest.issues.listComments({
+        owner: github.context.repo.owner,
+        repo: github.context.repo.repo,
+        issue_number: github.context.issue.number,
+        per_page: 100,
+      })
+    ).data.find(comment => comment.body?.startsWith(commentTitle));
+    if (existingComment?.id) {
+      return this.octokit.rest.issues.updateComment({
+        owner: github.context.repo.owner,
+        repo: github.context.repo.repo,
+        comment_id: existingComment.id,
+        body: commentText,
+      });
+    }
+
     return this.octokit.rest.issues.createComment({
       owner: github.context.repo.owner,
       repo: github.context.repo.repo,
