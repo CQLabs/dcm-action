@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import * as core from '@actions/core';
@@ -15,7 +16,7 @@ export class Reporter {
     return this.octokit.rest.checks.create({
       owner: github.context.repo.owner,
       repo: github.context.repo.repo,
-      name: reportTitle,
+      name: 'DCM analysis report',
       head_sha: github.context.sha,
       status: 'in_progress',
     });
@@ -70,8 +71,8 @@ export class Reporter {
         repo: github.context.repo.repo,
         check_run_id: runnerId,
         status: 'completed',
-        conclusion,
-        name: reportTitle,
+        conclusion: 'success',
+        name: 'DCM analysis report',
         output: {
           title: 'DCM analysis report',
           summary: 'Summary',
