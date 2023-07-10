@@ -241,7 +241,7 @@ function run() {
             const summary = (0, analyze_1.getSummary)(errors, warnings, style, perf);
             const reportUrl = yield reporter.complete(conclusion, runner.data.id, options.reportTitle, summary);
             if (options.addComment) {
-                const commentBody = `# ${options.reportTitle}\n${summary}\n\nFull report: ${reportUrl}`;
+                const commentBody = `${summary.replace('## Summary', `## ${options.reportTitle}`)}\n\nFull report: ${reportUrl}`;
                 yield reporter.postComment(commentBody);
             }
             core.endGroup();
@@ -317,13 +317,12 @@ exports.getOptions = getOptions;
 /***/ }),
 
 /***/ 7600:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.issueToAnnotation = void 0;
-const path_1 = __nccwpck_require__(1017);
 var AnnotationLevel;
 (function (AnnotationLevel) {
     AnnotationLevel["notice"] = "notice";
@@ -332,9 +331,8 @@ var AnnotationLevel;
 })(AnnotationLevel || (AnnotationLevel = {}));
 function issueToAnnotation(issue, path) {
     const isSingleLineIssue = issue.codeSpan.start.line === issue.codeSpan.end.line;
-    const cwd = process.env.GITHUB_WORKSPACE || process.cwd();
     return {
-        path: (0, path_1.join)(cwd, path),
+        path,
         start_line: issue.codeSpan.start.line,
         start_column: isSingleLineIssue ? issue.codeSpan.start.column : undefined,
         end_line: issue.codeSpan.end.line,
@@ -434,7 +432,7 @@ class Reporter {
                             if (issue.severity === 'error') {
                                 errors += 1;
                             }
-                            else if (issue.severity === 'warnings') {
+                            else if (issue.severity === 'warning') {
                                 warnings += 1;
                             }
                             else if (issue.severity === 'style') {
