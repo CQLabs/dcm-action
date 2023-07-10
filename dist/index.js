@@ -452,6 +452,7 @@ class Reporter {
                                     check_run_id: runnerId,
                                     output: {
                                         title: reportTitle,
+                                        summary: reportTitle,
                                         annotations: annotationsToSend,
                                     },
                                 });
@@ -466,6 +467,7 @@ class Reporter {
                     check_run_id: runnerId,
                     output: {
                         title: reportTitle,
+                        summary: reportTitle,
                         annotations: annotationsToSend.length ? [...annotationsToSend] : undefined,
                     },
                 });
