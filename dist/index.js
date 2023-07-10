@@ -241,8 +241,9 @@ function run() {
             const summary = (0, analyze_1.getSummary)(errors, warnings, style, perf);
             const reportUrl = yield reporter.complete(conclusion, runner.data.id, options.reportTitle, summary);
             if (options.addComment) {
-                const commentBody = `${summary.replace('## Summary', `## ${options.reportTitle}`)}\n\nFull report: ${reportUrl}`;
-                yield reporter.postComment(commentBody);
+                const commentTitle = `## ${options.reportTitle}`;
+                const commentBody = `${summary.replace('## Summary', commentTitle)}\n\nFull report: ${reportUrl}`;
+                yield reporter.postComment(commentTitle, commentBody);
             }
             core.endGroup();
             if (conclusion === 'failure') {
@@ -505,8 +506,22 @@ class Reporter {
             return (_b = completedRun.data.html_url) !== null && _b !== void 0 ? _b : '';
         });
     }
-    postComment(commentText) {
+    postComment(commentTitle, commentText) {
         return __awaiter(this, void 0, void 0, function* () {
+            const existingComment = (yield this.octokit.rest.issues.listComments({
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                issue_number: github.context.issue.number,
+                per_page: 100,
+            })).data.find(comment => { var _a; return (_a = comment.body) === null || _a === void 0 ? void 0 : _a.startsWith(commentTitle); });
+            if (existingComment === null || existingComment === void 0 ? void 0 : existingComment.id) {
+                return this.octokit.rest.issues.updateComment({
+                    owner: github.context.repo.owner,
+                    repo: github.context.repo.repo,
+                    comment_id: existingComment.id,
+                    body: commentText,
+                });
+            }
             return this.octokit.rest.issues.createComment({
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
