@@ -27,7 +27,7 @@ jobs:
         run: dart pub get
 
       - name: Install DCM
-        uses: CQLabs/setup-dcm@v1
+        uses: CQLabs/setup-dcm@v1.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
