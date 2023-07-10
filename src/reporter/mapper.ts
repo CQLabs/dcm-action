@@ -1,4 +1,3 @@
-import { join } from 'path';
 import { Issue } from '../commands/analyze';
 
 enum AnnotationLevel {
@@ -20,10 +19,9 @@ export type Annotation = {
 
 export function issueToAnnotation(issue: Issue, path: string): Annotation {
   const isSingleLineIssue = issue.codeSpan.start.line === issue.codeSpan.end.line;
-  const cwd = process.env.GITHUB_WORKSPACE || process.cwd();
 
   return {
-    path: join(cwd, path),
+    path,
     start_line: issue.codeSpan.start.line,
     start_column: isSingleLineIssue ? issue.codeSpan.start.column : undefined,
     end_line: issue.codeSpan.end.line,
