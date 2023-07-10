@@ -110,7 +110,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getConclusion = exports.analyze = void 0;
+exports.getSummary = exports.getConclusion = exports.analyze = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 function analyze(options) {
@@ -131,7 +131,7 @@ function analyze(options) {
         if (options.fatalPerf) {
             execOptions.push('--fatal-performance');
         }
-        execOptions.push(options.folders);
+        execOptions.push(options.folders.join(' '));
         core.info(`Running dcm ${execOptions.join(' ')}`);
         const jsonOutput = yield exec.getExecOutput('dcm', execOptions, {
             silent: true,
@@ -151,15 +151,32 @@ function analyze(options) {
     });
 }
 exports.analyze = analyze;
-function getConclusion(reports, options) {
-    return reports.some(report => report.issues.some(issue => issue.severity === 'error' ||
-        (options.fatalWarnings && issue.severity === 'warning') ||
-        (options.fatalStyle && issue.severity === 'style') ||
-        (options.fatalPerf && issue.severity === 'perf')))
-        ? 'failure'
-        : 'success';
+function getConclusion(errors, warnings, style, perf, options) {
+    if (errors)
+        return 'failure';
+    if (options.fatalWarnings && warnings)
+        return 'failure';
+    if (options.fatalStyle && style)
+        return 'failure';
+    if (options.fatalPerf && perf)
+        return 'failure';
+    return 'success';
 }
 exports.getConclusion = getConclusion;
+function getSummary(errors, warnings, style, perf) {
+    const parts = [];
+    if (errors)
+        parts.push(`error issues: ${errors}`);
+    if (warnings)
+        parts.push(`warning issues: ${warnings}`);
+    if (style)
+        parts.push(`style issues: ${style}`);
+    if (perf)
+        parts.push(`perf issues: ${perf}`);
+    const text = parts.join(', ');
+    return `## Summary\n${text ? `❌ ${text}` : `✅ no issues found!`}`;
+}
+exports.getSummary = getSummary;
 
 
 /***/ }),
@@ -217,12 +234,16 @@ function run() {
             (0, auth_1.setGitHubAuth)(options.pat);
             core.startGroup('Analyzing');
             const reports = yield (0, analyze_1.analyze)(options);
-            const conclusion = (0, analyze_1.getConclusion)(reports, options);
-            // get summary
             const reporter = new reporter_1.Reporter(github.getOctokit(options.token));
             const runner = yield reporter.create(options.reportTitle);
-            yield reporter.reportIssues(reports, runner.data.id, conclusion, options.reportTitle);
-            yield reporter.postComment(`## Hello`);
+            const { errors, warnings, style, perf } = yield reporter.reportIssues(reports, runner.data.id, options.reportTitle);
+            const conclusion = (0, analyze_1.getConclusion)(errors, warnings, style, perf, options);
+            const summary = (0, analyze_1.getSummary)(errors, warnings, style, perf);
+            const reportUrl = yield reporter.complete(conclusion, runner.data.id, options.reportTitle, summary);
+            if (options.addComment) {
+                const commentBody = `# ${options.reportTitle}\n${summary}\n\nFull report: ${reportUrl}`;
+                yield reporter.postComment(commentBody);
+            }
             core.endGroup();
             if (conclusion === 'failure') {
                 core.setFailed('Found fatal issues!');
@@ -271,19 +292,23 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getOptions = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 function getOptions() {
+    const folders = core
+        .getInput('folders')
+        .split(',')
+        .map(folder => folder.trim());
+    const packageName = core.getInput('package_name');
+    const reportTitle = packageName ? `DCM report for ${packageName}` : 'DCM report';
     return {
         token: core.getInput('github_token', { required: true }),
         ciKey: core.getInput('ci_key', { required: true }),
         email: core.getInput('email', { required: true }),
         pat: core.getInput('github_pat'),
-        folders: core.getInput('folders'),
-        relativePath: core.getInput('relative_path'),
+        folders: folders || ['lib'],
         addComment: core.getBooleanInput('pull_request_comment'),
-        reportTitle: core.getInput('report_title') || 'DCM report',
+        reportTitle,
         fatalWarnings: core.getBooleanInput('fatal_warnings'),
         fatalPerf: core.getBooleanInput('fatal_performance'),
         fatalStyle: core.getBooleanInput('fatal_style'),
-        unusedFileFolders: core.getInput('unused_files_folders'),
     };
 }
 exports.getOptions = getOptions;
@@ -393,9 +418,12 @@ class Reporter {
             });
         });
     }
-    reportIssues(reports, runnerId, conclusion, reportTitle) {
-        var _a;
+    reportIssues(reports, runnerId, reportTitle) {
         return __awaiter(this, void 0, void 0, function* () {
+            let warnings = 0;
+            let style = 0;
+            let perf = 0;
+            let errors = 0;
             const annotationsToSend = [];
             try {
                 for (const report of reports) {
@@ -403,24 +431,28 @@ class Reporter {
                         core.info(`\n${report.path}:`);
                         for (const issue of report.issues) {
                             this.logIssue(issue, report.path);
+                            if (issue.severity === 'error') {
+                                errors += 1;
+                            }
+                            else if (issue.severity === 'warnings') {
+                                warnings += 1;
+                            }
+                            else if (issue.severity === 'style') {
+                                style += 1;
+                            }
+                            else if (issue.severity === 'perf') {
+                                perf += 1;
+                            }
                             const annotation = (0, mapper_1.issueToAnnotation)(issue, report.path);
                             annotationsToSend.push(annotation);
-                            // core.error(issue.message, {
-                            //   file: annotation.path,
-                            //   startColumn: annotation.start_column,
-                            //   startLine: annotation.start_line,
-                            //   endColumn: annotation.end_column,
-                            //   endLine: annotation
-                            // })
                             if (annotationsToSend.length === Reporter.apiLimit) {
                                 yield this.octokit.rest.checks.update({
                                     owner: github.context.repo.owner,
                                     repo: github.context.repo.repo,
                                     check_run_id: runnerId,
                                     output: {
-                                        title: 'DCM analysis report',
-                                        summary: 'Summary',
-                                        annotations: [...annotationsToSend],
+                                        title: reportTitle,
+                                        annotations: annotationsToSend,
                                     },
                                 });
                                 annotationsToSend.length = 0;
@@ -428,23 +460,15 @@ class Reporter {
                         }
                     }
                 }
-                const completedRun = yield this.octokit.rest.checks.update({
+                yield this.octokit.rest.checks.update({
                     owner: github.context.repo.owner,
                     repo: github.context.repo.repo,
                     check_run_id: runnerId,
-                    status: 'completed',
-                    conclusion,
-                    name: reportTitle,
                     output: {
-                        title: 'DCM analysis report',
-                        summary: 'Summary',
+                        title: reportTitle,
                         annotations: annotationsToSend.length ? [...annotationsToSend] : undefined,
-                        text: 'Example',
                     },
                 });
-                core.info(`Check run create response: ${completedRun.status}`);
-                core.info(`Check run URL: ${completedRun.data.url}`);
-                core.info(`Check run HTML: ${(_a = completedRun.data.html_url) !== null && _a !== void 0 ? _a : ''}`);
             }
             catch (error) {
                 if (error instanceof Error) {
@@ -458,6 +482,27 @@ class Reporter {
                     }
                 }
             }
+            return { errors, warnings, style, perf };
+        });
+    }
+    complete(conclusion, runnerId, reportTitle, summary) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            const completedRun = yield this.octokit.rest.checks.update({
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                check_run_id: runnerId,
+                status: 'completed',
+                conclusion,
+                name: reportTitle,
+                output: {
+                    title: reportTitle,
+                    summary,
+                },
+            });
+            core.info(`Check run create response: ${completedRun.status}`);
+            core.info(`Check run HTML: ${(_a = completedRun.data.html_url) !== null && _a !== void 0 ? _a : ''}`);
+            return (_b = completedRun.data.html_url) !== null && _b !== void 0 ? _b : '';
         });
     }
     postComment(commentText) {
