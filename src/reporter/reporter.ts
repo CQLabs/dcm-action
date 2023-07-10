@@ -25,9 +25,13 @@ export class Reporter {
   public async reportIssues(
     reports: readonly Report[],
     runnerId: number,
-    conclusion: string,
     reportTitle: string,
-  ): Promise<void> {
+  ): Promise<{ errors: number; warnings: number; style: number; perf: number }> {
+    let warnings = 0;
+    let style = 0;
+    let perf = 0;
+    let errors = 0;
+
     const annotationsToSend: Annotation[] = [];
 
     try {
@@ -37,16 +41,18 @@ export class Reporter {
           for (const issue of report.issues) {
             this.logIssue(issue, report.path);
 
+            if (issue.severity === 'error') {
+              errors += 1;
+            } else if (issue.severity === 'warnings') {
+              warnings += 1;
+            } else if (issue.severity === 'style') {
+              style += 1;
+            } else if (issue.severity === 'perf') {
+              perf += 1;
+            }
+
             const annotation = issueToAnnotation(issue, report.path);
             annotationsToSend.push(annotation);
-
-            // core.error(issue.message, {
-            //   file: annotation.path,
-            //   startColumn: annotation.start_column,
-            //   startLine: annotation.start_line,
-            //   endColumn: annotation.end_column,
-            //   endLine: annotation
-            // })
 
             if (annotationsToSend.length === Reporter.apiLimit) {
               await this.octokit.rest.checks.update({
@@ -54,9 +60,8 @@ export class Reporter {
                 repo: github.context.repo.repo,
                 check_run_id: runnerId,
                 output: {
-                  title: 'DCM analysis report',
-                  summary: 'Summary',
-                  annotations: [...annotationsToSend],
+                  title: reportTitle,
+                  annotations: annotationsToSend,
                 },
               });
 
@@ -66,24 +71,15 @@ export class Reporter {
         }
       }
 
-      const completedRun = await this.octokit.rest.checks.update({
+      await this.octokit.rest.checks.update({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
         check_run_id: runnerId,
-        status: 'completed',
-        conclusion,
-        name: reportTitle,
         output: {
-          title: 'DCM analysis report',
-          summary: 'Summary',
+          title: reportTitle,
           annotations: annotationsToSend.length ? [...annotationsToSend] : undefined,
-          text: 'Example',
         },
       });
-
-      core.info(`Check run create response: ${completedRun.status}`);
-      core.info(`Check run URL: ${completedRun.data.url}`);
-      core.info(`Check run HTML: ${completedRun.data.html_url ?? ''}`);
     } catch (error) {
       if (error instanceof Error) {
         try {
@@ -94,6 +90,33 @@ export class Reporter {
         }
       }
     }
+
+    return { errors, warnings, style, perf };
+  }
+
+  public async complete(
+    conclusion: string,
+    runnerId: number,
+    reportTitle: string,
+    summary: string,
+  ): Promise<string> {
+    const completedRun = await this.octokit.rest.checks.update({
+      owner: github.context.repo.owner,
+      repo: github.context.repo.repo,
+      check_run_id: runnerId,
+      status: 'completed',
+      conclusion,
+      name: reportTitle,
+      output: {
+        title: reportTitle,
+        summary,
+      },
+    });
+
+    core.info(`Check run create response: ${completedRun.status}`);
+    core.info(`Check run HTML: ${completedRun.data.html_url ?? ''}`);
+
+    return completedRun.data.html_url ?? '';
   }
 
   public async postComment(

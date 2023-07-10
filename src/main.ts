@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import * as io from '@actions/io';
-import { analyze, getConclusion } from './commands/analyze';
+import { analyze, getConclusion, getSummary } from './commands/analyze';
 import { getOptions } from './options';
 import { Reporter } from './reporter/reporter';
 import { setGitHubAuth } from './auth';
@@ -16,13 +16,28 @@ async function run(): Promise<void> {
     core.startGroup('Analyzing');
 
     const reports = await analyze(options);
-    const conclusion = getConclusion(reports, options);
-    // get summary
 
     const reporter = new Reporter(github.getOctokit(options.token));
     const runner = await reporter.create(options.reportTitle);
-    await reporter.reportIssues(reports, runner.data.id, conclusion, options.reportTitle);
-    await reporter.postComment(`## Hello`);
+    const { errors, warnings, style, perf } = await reporter.reportIssues(
+      reports,
+      runner.data.id,
+      options.reportTitle,
+    );
+    const conclusion = getConclusion(errors, warnings, style, perf, options);
+    const summary = getSummary(errors, warnings, style, perf);
+    const reportUrl = await reporter.complete(
+      conclusion,
+      runner.data.id,
+      options.reportTitle,
+      summary,
+    );
+
+    if (options.addComment) {
+      const commentBody = `# ${options.reportTitle}\n${summary}\n\nFull report: ${reportUrl}`;
+
+      await reporter.postComment(commentBody);
+    }
 
     core.endGroup();
 

@@ -51,7 +51,7 @@ export async function analyze(options: Options): Promise<readonly Report[]> {
   if (options.fatalPerf) {
     execOptions.push('--fatal-performance');
   }
-  execOptions.push(options.folders);
+  execOptions.push(options.folders.join(' '));
 
   core.info(`Running dcm ${execOptions.join(' ')}`);
 
@@ -73,16 +73,29 @@ export async function analyze(options: Options): Promise<readonly Report[]> {
   }
 }
 
-export function getConclusion(reports: readonly Report[], options: Options): 'failure' | 'success' {
-  return reports.some(report =>
-    report.issues.some(
-      issue =>
-        issue.severity === 'error' ||
-        (options.fatalWarnings && issue.severity === 'warning') ||
-        (options.fatalStyle && issue.severity === 'style') ||
-        (options.fatalPerf && issue.severity === 'perf'),
-    ),
-  )
-    ? 'failure'
-    : 'success';
+export function getConclusion(
+  errors: number,
+  warnings: number,
+  style: number,
+  perf: number,
+  options: Options,
+): 'failure' | 'success' {
+  if (errors) return 'failure';
+  if (options.fatalWarnings && warnings) return 'failure';
+  if (options.fatalStyle && style) return 'failure';
+  if (options.fatalPerf && perf) return 'failure';
+
+  return 'success';
+}
+
+export function getSummary(errors: number, warnings: number, style: number, perf: number): string {
+  const parts = [];
+  if (errors) parts.push(`error issues: ${errors}`);
+  if (warnings) parts.push(`warning issues: ${warnings}`);
+  if (style) parts.push(`style issues: ${style}`);
+  if (perf) parts.push(`perf issues: ${perf}`);
+
+  const text = parts.join(', ');
+
+  return `## Summary\n${text ? `❌ ${text}` : `✅ no issues found!`}`;
 }
