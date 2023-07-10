@@ -43,7 +43,7 @@ export class Reporter {
 
             if (issue.severity === 'error') {
               errors += 1;
-            } else if (issue.severity === 'warnings') {
+            } else if (issue.severity === 'warning') {
               warnings += 1;
             } else if (issue.severity === 'style') {
               style += 1;
