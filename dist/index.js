@@ -208,7 +208,7 @@ function getOptions() {
         folders: core.getInput('folders'),
         relativePath: core.getInput('relative_path'),
         addComment: core.getBooleanInput('pull_request_comment'),
-        reportTitle: core.getInput('report_title'),
+        reportTitle: core.getInput('report_title') || 'DCM report',
         fatalWarnings: core.getBooleanInput('fatal_warnings'),
         fatalPerf: core.getBooleanInput('fatal_performance'),
         fatalStyle: core.getBooleanInput('fatal_style'),
@@ -216,48 +216,6 @@ function getOptions() {
     };
 }
 exports.getOptions = getOptions;
-
-
-/***/ }),
-
-/***/ 7600:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.issueToAnnotation = void 0;
-const path_1 = __nccwpck_require__(1017);
-var AnnotationLevel;
-(function (AnnotationLevel) {
-    AnnotationLevel["notice"] = "notice";
-    AnnotationLevel["warning"] = "warning";
-    AnnotationLevel["failure"] = "failure";
-})(AnnotationLevel || (AnnotationLevel = {}));
-function issueToAnnotation(issue, path) {
-    const isSingleLineIssue = issue.codeSpan.start.line === issue.codeSpan.end.line;
-    const cwd = process.env.GITHUB_WORKSPACE || process.cwd();
-    return {
-        path: (0, path_1.join)(cwd, path),
-        start_line: issue.codeSpan.start.line,
-        start_column: isSingleLineIssue ? issue.codeSpan.start.column : undefined,
-        end_line: issue.codeSpan.end.line,
-        end_column: isSingleLineIssue ? issue.codeSpan.end.column : undefined,
-        annotation_level: severityToAnnotationLevel(issue.severity),
-        message: issue.message,
-    };
-}
-exports.issueToAnnotation = issueToAnnotation;
-function severityToAnnotationLevel(severity) {
-    const level = {
-        none: AnnotationLevel.notice,
-        style: AnnotationLevel.notice,
-        performance: AnnotationLevel.warning,
-        warning: AnnotationLevel.warning,
-        error: AnnotationLevel.failure,
-    }[severity];
-    return level !== null && level !== void 0 ? level : AnnotationLevel.notice;
-}
 
 
 /***/ }),
@@ -305,7 +263,7 @@ exports.Reporter = void 0;
 /* eslint-disable no-restricted-syntax */
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
-const mapper_1 = __nccwpck_require__(7600);
+// import { Annotation, issueToAnnotation } from './mapper';
 // eslint-disable-next-line import/prefer-default-export
 class Reporter {
     constructor(octokit) {
@@ -324,38 +282,38 @@ class Reporter {
     }
     reportIssues(reports, runnerId, conclusion, reportTitle) {
         return __awaiter(this, void 0, void 0, function* () {
-            const annotationsToSend = [];
+            // const annotationsToSend: Annotation[] = [];
             try {
-                for (const report of reports) {
-                    if (report.issues.length) {
-                        core.info(`\n${report.path}:`);
-                        for (const issue of report.issues) {
-                            this.logIssue(issue, report.path);
-                            const annotation = (0, mapper_1.issueToAnnotation)(issue, report.path);
-                            annotationsToSend.push(annotation);
-                            core.error(issue.message, {
-                                file: annotation.path,
-                                startColumn: annotation.start_column,
-                                startLine: annotation.start_line,
-                                endColumn: annotation.end_column,
-                                endLine: annotation.end_line,
-                            });
-                            if (annotationsToSend.length === Reporter.apiLimit) {
-                                yield this.octokit.rest.checks.update({
-                                    owner: github.context.repo.owner,
-                                    repo: github.context.repo.repo,
-                                    check_run_id: runnerId,
-                                    output: {
-                                        title: 'DCM analysis report',
-                                        summary: 'Summary',
-                                        annotations: [...annotationsToSend],
-                                    },
-                                });
-                                annotationsToSend.length = 0;
-                            }
-                        }
-                    }
-                }
+                // for (const report of reports) {
+                //   if (report.issues.length) {
+                //     core.info(`\n${report.path}:`);
+                //     for (const issue of report.issues) {
+                //       this.logIssue(issue, report.path);
+                //       const annotation = issueToAnnotation(issue, report.path);
+                //       annotationsToSend.push(annotation);
+                //       core.error(issue.message, {
+                //         file: annotation.path,
+                //         startColumn: annotation.start_column,
+                //         startLine: annotation.start_line,
+                //         endColumn: annotation.end_column,
+                //         endLine: annotation.end_line,
+                //       });
+                //       if (annotationsToSend.length === Reporter.apiLimit) {
+                //         await this.octokit.rest.checks.update({
+                //           owner: github.context.repo.owner,
+                //           repo: github.context.repo.repo,
+                //           check_run_id: runnerId,
+                //           output: {
+                //             title: 'DCM analysis report',
+                //             summary: 'Summary',
+                //             annotations: [...annotationsToSend],
+                //           },
+                //         });
+                //         annotationsToSend.length = 0;
+                //       }
+                //     }
+                //   }
+                // }
                 yield this.octokit.rest.checks.update({
                     owner: github.context.repo.owner,
                     repo: github.context.repo.repo,
@@ -366,8 +324,8 @@ class Reporter {
                     output: {
                         title: 'DCM analysis report',
                         summary: 'Summary',
-                        annotations: annotationsToSend.length ? [...annotationsToSend] : undefined,
-                        text: 'Example',
+                        // annotations: annotationsToSend.length ? [...annotationsToSend] : undefined,
+                        text: 'Example text',
                     },
                 });
             }
@@ -413,13 +371,6 @@ Check your logs for more information.`,
                 },
             });
         });
-    }
-    logIssue(issue, path) {
-        const padding = ''.padStart(10);
-        core.info(`${issue.severity.padEnd(10).toUpperCase()}${issue.message}
-${padding}at ${path}:${issue.codeSpan.start.line}:${issue.codeSpan.start.column}
-${padding}${issue.ruleId} : ${issue.documentation}
-`);
     }
 }
 exports.Reporter = Reporter;
