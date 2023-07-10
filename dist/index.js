@@ -259,6 +259,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Reporter = void 0;
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 const core = __importStar(__nccwpck_require__(2186));
@@ -274,7 +275,7 @@ class Reporter {
             return this.octokit.rest.checks.create({
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
-                name: reportTitle,
+                name: 'DCM analysis report',
                 head_sha: github.context.sha,
                 status: 'in_progress',
             });
@@ -319,8 +320,8 @@ class Reporter {
                     repo: github.context.repo.repo,
                     check_run_id: runnerId,
                     status: 'completed',
-                    conclusion,
-                    name: reportTitle,
+                    conclusion: 'success',
+                    name: 'DCM analysis report',
                     output: {
                         title: 'DCM analysis report',
                         summary: 'Summary',
