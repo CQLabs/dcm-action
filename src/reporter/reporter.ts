@@ -2,8 +2,8 @@
 /* eslint-disable no-restricted-syntax */
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { Issue, Report } from '../commands/analyze';
-import { Annotation, issueToAnnotation } from './mapper';
+import { Report } from '../commands/analyze';
+// import { Annotation, issueToAnnotation } from './mapper';
 
 // eslint-disable-next-line import/prefer-default-export
 export class Reporter {
@@ -27,43 +27,43 @@ export class Reporter {
     conclusion: string,
     reportTitle: string,
   ): Promise<void> {
-    const annotationsToSend: Annotation[] = [];
+    // const annotationsToSend: Annotation[] = [];
 
     try {
-      for (const report of reports) {
-        if (report.issues.length) {
-          core.info(`\n${report.path}:`);
-          for (const issue of report.issues) {
-            this.logIssue(issue, report.path);
+      // for (const report of reports) {
+      //   if (report.issues.length) {
+      //     core.info(`\n${report.path}:`);
+      //     for (const issue of report.issues) {
+      //       this.logIssue(issue, report.path);
 
-            const annotation = issueToAnnotation(issue, report.path);
-            annotationsToSend.push(annotation);
+      //       const annotation = issueToAnnotation(issue, report.path);
+      //       annotationsToSend.push(annotation);
 
-            core.error(issue.message, {
-              file: annotation.path,
-              startColumn: annotation.start_column,
-              startLine: annotation.start_line,
-              endColumn: annotation.end_column,
-              endLine: annotation.end_line,
-            });
+      //       core.error(issue.message, {
+      //         file: annotation.path,
+      //         startColumn: annotation.start_column,
+      //         startLine: annotation.start_line,
+      //         endColumn: annotation.end_column,
+      //         endLine: annotation.end_line,
+      //       });
 
-            if (annotationsToSend.length === Reporter.apiLimit) {
-              await this.octokit.rest.checks.update({
-                owner: github.context.repo.owner,
-                repo: github.context.repo.repo,
-                check_run_id: runnerId,
-                output: {
-                  title: 'DCM analysis report',
-                  summary: 'Summary',
-                  annotations: [...annotationsToSend],
-                },
-              });
+      //       if (annotationsToSend.length === Reporter.apiLimit) {
+      //         await this.octokit.rest.checks.update({
+      //           owner: github.context.repo.owner,
+      //           repo: github.context.repo.repo,
+      //           check_run_id: runnerId,
+      //           output: {
+      //             title: 'DCM analysis report',
+      //             summary: 'Summary',
+      //             annotations: [...annotationsToSend],
+      //           },
+      //         });
 
-              annotationsToSend.length = 0;
-            }
-          }
-        }
-      }
+      //         annotationsToSend.length = 0;
+      //       }
+      //     }
+      //   }
+      // }
 
       await this.octokit.rest.checks.update({
         owner: github.context.repo.owner,
@@ -75,8 +75,8 @@ export class Reporter {
         output: {
           title: 'DCM analysis report',
           summary: 'Summary',
-          annotations: annotationsToSend.length ? [...annotationsToSend] : undefined,
-          text: 'Example',
+          // annotations: annotationsToSend.length ? [...annotationsToSend] : undefined,
+          text: 'Example text',
         },
       });
     } catch (error) {
@@ -121,12 +121,12 @@ Check your logs for more information.`,
     });
   }
 
-  private logIssue(issue: Issue, path: string): void {
-    const padding = ''.padStart(10);
+  //   private logIssue(issue: Issue, path: string): void {
+  //     const padding = ''.padStart(10);
 
-    core.info(`${issue.severity.padEnd(10).toUpperCase()}${issue.message}
-${padding}at ${path}:${issue.codeSpan.start.line}:${issue.codeSpan.start.column}
-${padding}${issue.ruleId} : ${issue.documentation}
-`);
-  }
+  //     core.info(`${issue.severity.padEnd(10).toUpperCase()}${issue.message}
+  // ${padding}at ${path}:${issue.codeSpan.start.line}:${issue.codeSpan.start.column}
+  // ${padding}${issue.ruleId} : ${issue.documentation}
+  // `);
+  //   }
 }

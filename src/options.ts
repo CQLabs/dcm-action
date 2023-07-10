@@ -24,7 +24,7 @@ export function getOptions(): Options {
     folders: core.getInput('folders'),
     relativePath: core.getInput('relative_path'),
     addComment: core.getBooleanInput('pull_request_comment'),
-    reportTitle: core.getInput('report_title'),
+    reportTitle: core.getInput('report_title') || 'DCM report',
     fatalWarnings: core.getBooleanInput('fatal_warnings'),
     fatalPerf: core.getBooleanInput('fatal_performance'),
     fatalStyle: core.getBooleanInput('fatal_style'),
