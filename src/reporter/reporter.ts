@@ -25,6 +25,7 @@ export class Reporter {
     reports: readonly Report[],
     runnerId: number,
     conclusion: string,
+    reportTitle: string,
   ): Promise<void> {
     const annotationsToSend: Annotation[] = [];
 
@@ -64,8 +65,8 @@ export class Reporter {
         repo: github.context.repo.repo,
         check_run_id: runnerId,
         status: 'completed',
-        completed_at: new Date(Date.now()).toISOString(),
         conclusion,
+        name: reportTitle,
         output: {
           title: 'DCM analysis report',
           summary: 'Summary',
