@@ -39,8 +39,13 @@ export class Reporter {
             const annotation = issueToAnnotation(issue, report.path);
             annotationsToSend.push(annotation);
 
-            // eslint-disable-next-line no-console
-            console.log(annotation);
+            core.error(issue.message, {
+              file: annotation.path,
+              startColumn: annotation.start_column,
+              startLine: annotation.start_line,
+              endColumn: annotation.end_column,
+              endLine: annotation.end_line,
+            });
 
             if (annotationsToSend.length === Reporter.apiLimit) {
               await this.octokit.rest.checks.update({
