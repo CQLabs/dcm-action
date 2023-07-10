@@ -13,12 +13,11 @@ inputs:
   github_pat:
     description: 'Personal access token. Required if you have private GitHub repository in the package dependencies.'
     required: false
-    default: ''
   ci_key:
-    description: ''
+    description: 'License key to run on CI server.'
     required: true
   email:
-    description: ''
+    description: 'Email used to purchase the license.'
     required: true
   folders:
     description: 'List of folders and files to scan.'

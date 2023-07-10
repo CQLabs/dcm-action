@@ -1,105 +1,66 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+# DCM Action
 
-# Create a JavaScript Action using TypeScript
+`dcm-action` runs [DCM](https://dcm.dev/) checks in GitHub Actions.
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+## Usage example
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
+```yml
+name: DCM
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
 
-## Create an action from this template
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-Click the `Use this Template` and provide the new repo details for your action
+      - name: Install Dart and Flutter
+        uses: subosito/flutter-action@v2
 
-## Code in Main
+      - name: Install dependencies
+        run: dart pub get
 
-> First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
+      - name: Install DCM
+        uses: CQLabs/setup-dcm@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
-Install the dependencies  
-```bash
-$ npm install
+      - name: Run DCM
+        uses: CQLabs/dcm-action@v1.0.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          ci_key: ${{ secrets.DCM_CI_KEY }}
+          email: ${{ secrets.DCM_EMAIL }}
+          folders: lib
 ```
 
-Build the typescript and package it for distribution
-```bash
-$ npm run build && npm run package
-```
+## Inputs
 
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
+The action takes the following inputs:
 
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
+| Name                                  | Required                                                                  | Description                                                                                                                                                                                                                                                                                                         | Default                                   |
+| :------------------------------------ | :------------------------------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :---------------------------------------- |
+| **github_token**                      | ☑️                                                                         | Required to post a report on GitHub. _Note:_ the secret [`GITHUB_TOKEN`](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token) is already provided by GitHub and you don't have to set it up yourself.                                              |                                           |
+| **github_pat**                        | Required if you had private GitHub repository in the package dependencies | [**Personal access token**](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) must access to _repo_ and _read:user_ [scopes](https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps#available-scopes) |                                           |
+| **ci_key**                            | ☑️                                                                         | License key to run on CI server.                                                                                                                                                                                                                                                                                    |                                           |
+| **email**                             | ☑️                                                                         | Email used to purchase the license.                                                                                                                                                                                                                                                                                 |                                           |
+| **folders**                           | ☑️                                                                         | List of folders and files to scan.                                                                                                                                                                                                                                                                                  | [`lib`]                                   |
+| **pull_request_comment**              |                                                                           | Publish report overview directly into your pull request.                                                                                                                                                                                                                                                            | `true`                                    |
+| **package_name**                      |                                                                           | Package name to differentiate the report. Set when running several DCM runs at once.                                                                                                                                                                                                                                |                                           |
+| **fatal_performance**                 |                                                                           | Treat performance level issues as fatal.                                                                                                                                                                                                                                                                            | `true`                                    |
+| **fatal_style**                       |                                                                           | Treat style level issues as fatal.                                                                                                                                                                                                                                                                                  | `true`                                    |
+| **fatal_warnings**                    |                                                                           | Treat warning level issues as fatal.                                                                                                                                                                                                                                                                                | `true`                                    |
 
-...
-```
+## License
 
-## Change action.yml
+See the [LICENSE](LICENSE) file.
 
-The action.yml defines the inputs and output for your action.
+## Version history
 
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
-
-```yaml
-uses: ./
-with:
-  milliseconds: 1000
-```
-
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
-
-## Usage:
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
+Please see our [CHANGELOG.md](CHANGELOG.md) file.
