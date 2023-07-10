@@ -20,7 +20,7 @@ inputs:
     description: 'Email used to purchase the license.'
     required: true
   folders:
-    description: 'List of folders and files to scan.'
+    description: 'List of folders and files (separated by commas) to scan.'
     required: false
     default: 'lib'
   pull_request_comment:
