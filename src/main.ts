@@ -34,7 +34,10 @@ async function run(): Promise<void> {
     );
 
     if (options.addComment) {
-      const commentBody = `# ${options.reportTitle}\n${summary}\n\nFull report: ${reportUrl}`;
+      const commentBody = `${summary.replace(
+        '## Summary',
+        `## ${options.reportTitle}`,
+      )}\n\nFull report: ${reportUrl}`;
 
       await reporter.postComment(commentBody);
     }
