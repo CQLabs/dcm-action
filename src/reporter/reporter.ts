@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { Report } from '../commands/analyze';
-// import { Annotation, issueToAnnotation } from './mapper';
+import { Issue, Report } from '../commands/analyze';
+import { Annotation, issueToAnnotation } from './mapper';
 
 // eslint-disable-next-line import/prefer-default-export
 export class Reporter {
@@ -16,7 +15,7 @@ export class Reporter {
     return this.octokit.rest.checks.create({
       owner: github.context.repo.owner,
       repo: github.context.repo.repo,
-      name: 'DCM analysis report',
+      name: reportTitle,
       head_sha: github.context.sha,
       status: 'in_progress',
     });
@@ -28,58 +27,62 @@ export class Reporter {
     conclusion: string,
     reportTitle: string,
   ): Promise<void> {
-    // const annotationsToSend: Annotation[] = [];
+    const annotationsToSend: Annotation[] = [];
 
     try {
-      // for (const report of reports) {
-      //   if (report.issues.length) {
-      //     core.info(`\n${report.path}:`);
-      //     for (const issue of report.issues) {
-      //       this.logIssue(issue, report.path);
+      for (const report of reports) {
+        if (report.issues.length) {
+          core.info(`\n${report.path}:`);
+          for (const issue of report.issues) {
+            this.logIssue(issue, report.path);
 
-      //       const annotation = issueToAnnotation(issue, report.path);
-      //       annotationsToSend.push(annotation);
+            const annotation = issueToAnnotation(issue, report.path);
+            annotationsToSend.push(annotation);
 
-      //       core.error(issue.message, {
-      //         file: annotation.path,
-      //         startColumn: annotation.start_column,
-      //         startLine: annotation.start_line,
-      //         endColumn: annotation.end_column,
-      //         endLine: annotation.end_line,
-      //       });
+            // core.error(issue.message, {
+            //   file: annotation.path,
+            //   startColumn: annotation.start_column,
+            //   startLine: annotation.start_line,
+            //   endColumn: annotation.end_column,
+            //   endLine: annotation
+            // })
 
-      //       if (annotationsToSend.length === Reporter.apiLimit) {
-      //         await this.octokit.rest.checks.update({
-      //           owner: github.context.repo.owner,
-      //           repo: github.context.repo.repo,
-      //           check_run_id: runnerId,
-      //           output: {
-      //             title: 'DCM analysis report',
-      //             summary: 'Summary',
-      //             annotations: [...annotationsToSend],
-      //           },
-      //         });
+            if (annotationsToSend.length === Reporter.apiLimit) {
+              await this.octokit.rest.checks.update({
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                check_run_id: runnerId,
+                output: {
+                  title: 'DCM analysis report',
+                  summary: 'Summary',
+                  annotations: [...annotationsToSend],
+                },
+              });
 
-      //         annotationsToSend.length = 0;
-      //       }
-      //     }
-      //   }
-      // }
+              annotationsToSend.length = 0;
+            }
+          }
+        }
+      }
 
-      await this.octokit.rest.checks.update({
+      const completedRun = await this.octokit.rest.checks.update({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
         check_run_id: runnerId,
         status: 'completed',
-        conclusion: 'success',
-        name: 'DCM analysis report',
+        conclusion,
+        name: reportTitle,
         output: {
           title: 'DCM analysis report',
           summary: 'Summary',
-          // annotations: annotationsToSend.length ? [...annotationsToSend] : undefined,
-          text: 'Example text',
+          annotations: annotationsToSend.length ? [...annotationsToSend] : undefined,
+          text: 'Example',
         },
       });
+
+      core.info(`Check run create response: ${completedRun.status}`);
+      core.info(`Check run URL: ${completedRun.data.url}`);
+      core.info(`Check run HTML: ${completedRun.data.html_url ?? ''}`);
     } catch (error) {
       if (error instanceof Error) {
         try {
@@ -122,12 +125,12 @@ Check your logs for more information.`,
     });
   }
 
-  //   private logIssue(issue: Issue, path: string): void {
-  //     const padding = ''.padStart(10);
+  private logIssue(issue: Issue, path: string): void {
+    const padding = ''.padStart(10);
 
-  //     core.info(`${issue.severity.padEnd(10).toUpperCase()}${issue.message}
-  // ${padding}at ${path}:${issue.codeSpan.start.line}:${issue.codeSpan.start.column}
-  // ${padding}${issue.ruleId} : ${issue.documentation}
-  // `);
-  //   }
+    core.info(`${issue.severity.padEnd(10).toUpperCase()}${issue.message}
+${padding}at ${path}:${issue.codeSpan.start.line}:${issue.codeSpan.start.column}
+${padding}${issue.ruleId} : ${issue.documentation}
+`);
+  }
 }
