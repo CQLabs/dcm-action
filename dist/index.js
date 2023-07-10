@@ -388,7 +388,7 @@ class Reporter {
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
                 name: reportTitle,
-                head_sha: github.context.sha,
+                head_sha: this.getCheckRunSha(),
                 status: 'in_progress',
             });
         });
@@ -495,6 +495,22 @@ Check your logs for more information.`,
 ${padding}at ${path}:${issue.codeSpan.start.line}:${issue.codeSpan.start.column}
 ${padding}${issue.ruleId} : ${issue.documentation}
 `);
+    }
+    getCheckRunSha() {
+        if (github.context.eventName === 'workflow_run') {
+            core.info('Action was triggered by workflow_run: using SHA and RUN_ID from triggering workflow');
+            const event = github.context.payload.workflow_run;
+            if (!event) {
+                throw new Error("Event of type 'workflow_run' is missing 'workflow_run' field");
+            }
+            return event.workflow_run.head_commit.id;
+        }
+        if (github.context.payload.pull_request) {
+            core.info(`Action was triggered by ${github.context.eventName}: using SHA from head of source branch`);
+            const pr = github.context.payload.pull_request;
+            return pr.head.sha;
+        }
+        return github.context.sha;
     }
 }
 exports.Reporter = Reporter;
