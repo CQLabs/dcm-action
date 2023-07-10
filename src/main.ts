@@ -4,14 +4,14 @@ import * as io from '@actions/io';
 import { analyze, getConclusion } from './commands/analyze';
 import { getOptions } from './options';
 import { Reporter } from './reporter/reporter';
-import { setGitHubAuth } from './auth';
+// import { setGitHubAuth } from './auth';
 
 async function run(): Promise<void> {
   try {
     await io.which('dcm', true);
 
     const options = getOptions();
-    setGitHubAuth(options.pat);
+    // setGitHubAuth(options.pat);
 
     core.startGroup('Analyzing');
 

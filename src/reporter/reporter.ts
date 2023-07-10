@@ -17,8 +17,7 @@ export class Reporter {
       repo: github.context.repo.repo,
       name: reportTitle,
       head_sha: github.context.sha,
-      status: 'queued',
-      external_id: 'test',
+      status: 'in_progress',
     });
   }
 
@@ -27,14 +26,6 @@ export class Reporter {
     runnerId: number,
     conclusion: string,
   ): Promise<void> {
-    await this.octokit.rest.checks.update({
-      owner: github.context.repo.owner,
-      repo: github.context.repo.repo,
-      check_run_id: runnerId,
-      status: 'in_progress',
-      started_at: new Date(Date.now()).toISOString(),
-    });
-
     const annotationsToSend: Annotation[] = [];
 
     try {
@@ -47,14 +38,14 @@ export class Reporter {
             const annotation = issueToAnnotation(issue, report.path);
             annotationsToSend.push(annotation);
 
+            // eslint-disable-next-line no-console
+            console.log(annotation);
+
             if (annotationsToSend.length === Reporter.apiLimit) {
               await this.octokit.rest.checks.update({
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
                 check_run_id: runnerId,
-                status: 'completed',
-                completed_at: new Date(Date.now()).toISOString(),
-                conclusion,
                 output: {
                   title: 'DCM analysis report',
                   summary: 'Summary',
@@ -79,11 +70,10 @@ export class Reporter {
           title: 'DCM analysis report',
           summary: 'Summary',
           annotations: annotationsToSend.length ? [...annotationsToSend] : undefined,
+          text: 'Example',
         },
       });
     } catch (error) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
-      core.info((error as any).toString());
       if (error instanceof Error) {
         try {
           await this.cancelRun(runnerId, error);
