@@ -150,7 +150,7 @@ function run() {
             // get summary
             const reporter = new reporter_1.Reporter(github.getOctokit(options.token));
             const runner = yield reporter.create(options.reportTitle);
-            yield reporter.reportIssues(reports, runner.data.id, conclusion);
+            yield reporter.reportIssues(reports, runner.data.id, conclusion, options.reportTitle);
             yield reporter.postComment(`## Hello`);
             core.endGroup();
             if (conclusion === 'failure') {
@@ -221,12 +221,13 @@ exports.getOptions = getOptions;
 /***/ }),
 
 /***/ 7600:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.issueToAnnotation = void 0;
+const path_1 = __nccwpck_require__(1017);
 var AnnotationLevel;
 (function (AnnotationLevel) {
     AnnotationLevel["notice"] = "notice";
@@ -235,8 +236,9 @@ var AnnotationLevel;
 })(AnnotationLevel || (AnnotationLevel = {}));
 function issueToAnnotation(issue, path) {
     const isSingleLineIssue = issue.codeSpan.start.line === issue.codeSpan.end.line;
+    const cwd = process.env.GITHUB_WORKSPACE || process.cwd();
     return {
-        path,
+        path: (0, path_1.join)(cwd, path),
         start_line: issue.codeSpan.start.line,
         start_column: isSingleLineIssue ? issue.codeSpan.start.column : undefined,
         end_line: issue.codeSpan.end.line,
@@ -320,7 +322,7 @@ class Reporter {
             });
         });
     }
-    reportIssues(reports, runnerId, conclusion) {
+    reportIssues(reports, runnerId, conclusion, reportTitle) {
         return __awaiter(this, void 0, void 0, function* () {
             const annotationsToSend = [];
             try {
@@ -354,8 +356,8 @@ class Reporter {
                     repo: github.context.repo.repo,
                     check_run_id: runnerId,
                     status: 'completed',
-                    completed_at: new Date(Date.now()).toISOString(),
                     conclusion,
+                    name: reportTitle,
                     output: {
                         title: 'DCM analysis report',
                         summary: 'Summary',
