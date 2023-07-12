@@ -121,30 +121,40 @@ export class Reporter {
     return completedRun.data.html_url ?? '';
   }
 
-  public async postComment(commentTitle: string, commentText: string): Promise<unknown> {
-    const existingComment = (
-      await this.octokit.rest.issues.listComments({
+  public async postComment(commentTitle: string, commentText: string): Promise<void> {
+    const issue = github.context.issue.number;
+    if (issue === null || issue === undefined) return;
+
+    try {
+      const existingComment = (
+        await this.octokit.rest.issues.listComments({
+          owner: github.context.repo.owner,
+          repo: github.context.repo.repo,
+          issue_number: issue,
+          per_page: 100,
+        })
+      ).data.find(comment => comment.body?.startsWith(commentTitle));
+
+      if (existingComment?.id) {
+        await this.octokit.rest.issues.updateComment({
+          owner: github.context.repo.owner,
+          repo: github.context.repo.repo,
+          comment_id: existingComment.id,
+          body: commentText,
+        });
+
+        return;
+      }
+
+      await this.octokit.rest.issues.createComment({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
-        issue_number: github.context.issue.number,
-        per_page: 100,
-      })
-    ).data.find(comment => comment.body?.startsWith(commentTitle));
-    if (existingComment?.id) {
-      return this.octokit.rest.issues.updateComment({
-        owner: github.context.repo.owner,
-        repo: github.context.repo.repo,
-        comment_id: existingComment.id,
+        issue_number: issue,
         body: commentText,
       });
+    } catch (error) {
+      if (error instanceof Error) core.debug(`Failed to create a comment due to ${error.message}.`);
     }
-
-    return this.octokit.rest.issues.createComment({
-      owner: github.context.repo.owner,
-      repo: github.context.repo.repo,
-      issue_number: github.context.issue.number,
-      body: commentText,
-    });
   }
 
   private async cancelRun(runnerId: number, error: Error): Promise<void> {
