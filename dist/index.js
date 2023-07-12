@@ -508,26 +508,36 @@ class Reporter {
     }
     postComment(commentTitle, commentText) {
         return __awaiter(this, void 0, void 0, function* () {
-            const existingComment = (yield this.octokit.rest.issues.listComments({
-                owner: github.context.repo.owner,
-                repo: github.context.repo.repo,
-                issue_number: github.context.issue.number,
-                per_page: 100,
-            })).data.find(comment => { var _a; return (_a = comment.body) === null || _a === void 0 ? void 0 : _a.startsWith(commentTitle); });
-            if (existingComment === null || existingComment === void 0 ? void 0 : existingComment.id) {
-                return this.octokit.rest.issues.updateComment({
+            const issue = github.context.issue.number;
+            if (issue === null || issue === undefined)
+                return;
+            try {
+                const existingComment = (yield this.octokit.rest.issues.listComments({
                     owner: github.context.repo.owner,
                     repo: github.context.repo.repo,
-                    comment_id: existingComment.id,
+                    issue_number: issue,
+                    per_page: 100,
+                })).data.find(comment => { var _a; return (_a = comment.body) === null || _a === void 0 ? void 0 : _a.startsWith(commentTitle); });
+                if (existingComment === null || existingComment === void 0 ? void 0 : existingComment.id) {
+                    yield this.octokit.rest.issues.updateComment({
+                        owner: github.context.repo.owner,
+                        repo: github.context.repo.repo,
+                        comment_id: existingComment.id,
+                        body: commentText,
+                    });
+                    return;
+                }
+                yield this.octokit.rest.issues.createComment({
+                    owner: github.context.repo.owner,
+                    repo: github.context.repo.repo,
+                    issue_number: issue,
                     body: commentText,
                 });
             }
-            return this.octokit.rest.issues.createComment({
-                owner: github.context.repo.owner,
-                repo: github.context.repo.repo,
-                issue_number: github.context.issue.number,
-                body: commentText,
-            });
+            catch (error) {
+                if (error instanceof Error)
+                    core.debug(`Failed to create a comment due to ${error.message}.`);
+            }
         });
     }
     cancelRun(runnerId, error) {
