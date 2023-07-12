@@ -32,7 +32,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run DCM
-        uses: CQLabs/dcm-action@v1.0.0
+        uses: CQLabs/dcm-action@v1.0.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           ci_key: ${{ secrets.DCM_CI_KEY }}
