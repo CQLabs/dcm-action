@@ -57,6 +57,8 @@ The action takes the following inputs:
 | **fatal_style**                       |                                                                           | Treat style level issues as fatal.                                                                                                                                                                                                                                                                                  | `true`                                    |
 | **fatal_warnings**                    |                                                                           | Treat warning level issues as fatal.                                                                                                                                                                                                                                                                                | `true`                                    |
 
+If you have a DCM Open Source license, pass `oss` to both CI key and email inputs.
+
 ## License
 
 See the [LICENSE](LICENSE) file.

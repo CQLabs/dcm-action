@@ -115,13 +115,8 @@ const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 function analyze(options) {
     return __awaiter(this, void 0, void 0, function* () {
-        const execOptions = [
-            'analyze',
-            `--ci-key=${options.ciKey}`,
-            `--email=${options.email}`,
-            '--reporter=json',
-            '--no-congratulate',
-        ];
+        const credentials = options.ciKey !== 'oss' ? [`--ci-key=${options.ciKey}`, `--email=${options.email}`] : [];
+        const execOptions = ['analyze', ...credentials, '--reporter=json', '--no-congratulate'];
         if (options.fatalWarnings) {
             execOptions.push('--fatal-warnings');
         }
