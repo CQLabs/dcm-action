@@ -235,7 +235,7 @@ function run() {
             const conclusion = (0, analyze_1.getConclusion)(errors, warnings, style, perf, options);
             const summary = (0, analyze_1.getSummary)(errors, warnings, style, perf);
             const reportUrl = yield reporter.complete(conclusion, runner.data.id, options.reportTitle, summary);
-            if (options.addComment) {
+            if (options.addComment || (options.addCommentOnFail && conclusion === 'failure')) {
                 const commentTitle = `## ${options.reportTitle}`;
                 const commentBody = `${summary.replace('## Summary', commentTitle)}\n\nFull report: ${reportUrl}`;
                 yield reporter.postComment(commentTitle, commentBody);
@@ -301,6 +301,7 @@ function getOptions() {
         pat: core.getInput('github_pat'),
         folders: folders || ['lib'],
         addComment: core.getBooleanInput('pull_request_comment'),
+        addCommentOnFail: core.getBooleanInput('pull_request_comment_on_fail'),
         reportTitle,
         fatalWarnings: core.getBooleanInput('fatal_warnings'),
         fatalPerf: core.getBooleanInput('fatal_performance'),
