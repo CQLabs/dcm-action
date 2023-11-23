@@ -7,6 +7,7 @@ export type Options = {
   readonly pat: string;
   readonly folders: string[];
   readonly addComment: boolean;
+  readonly addCommentOnFail: boolean;
   readonly reportTitle: string;
   readonly fatalWarnings: boolean;
   readonly fatalPerf: boolean;
@@ -29,6 +30,7 @@ export function getOptions(): Options {
     pat: core.getInput('github_pat'),
     folders: folders || ['lib'],
     addComment: core.getBooleanInput('pull_request_comment'),
+    addCommentOnFail: core.getBooleanInput('pull_request_comment_on_fail'),
     reportTitle,
     fatalWarnings: core.getBooleanInput('fatal_warnings'),
     fatalPerf: core.getBooleanInput('fatal_performance'),

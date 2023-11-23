@@ -33,7 +33,7 @@ async function run(): Promise<void> {
       summary,
     );
 
-    if (options.addComment) {
+    if (options.addComment || (options.addCommentOnFail && conclusion === 'failure')) {
       const commentTitle = `## ${options.reportTitle}`;
       const commentBody = `${summary.replace(
         '## Summary',
