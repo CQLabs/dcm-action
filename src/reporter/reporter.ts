@@ -97,7 +97,7 @@ export class Reporter {
   }
 
   public async complete(
-    conclusion: string,
+    conclusion: 'failure' | 'success',
     runnerId: number,
     reportTitle: string,
     summary: string,
