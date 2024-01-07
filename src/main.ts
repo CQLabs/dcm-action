@@ -33,14 +33,17 @@ async function run(): Promise<void> {
       summary,
     );
 
+    const commentTitle = `## ${options.reportTitle}`;
+
     if (options.addComment || (options.addCommentOnFail && conclusion === 'failure')) {
-      const commentTitle = `## ${options.reportTitle}`;
       const commentBody = `${summary.replace(
         '## Summary',
         commentTitle,
       )}\n\nFull report: ${reportUrl}`;
 
       await reporter.postComment(commentTitle, commentBody);
+    } else if (options.addCommentOnFail && conclusion === 'success') {
+      await reporter.deleteComment(commentTitle);
     }
 
     core.endGroup();

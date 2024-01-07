@@ -157,6 +157,32 @@ export class Reporter {
     }
   }
 
+  public async deleteComment(commentTitle: string): Promise<void> {
+    const issue = github.context.issue.number;
+    if (issue === null || issue === undefined) return;
+
+    try {
+      const existingComment = (
+        await this.octokit.rest.issues.listComments({
+          owner: github.context.repo.owner,
+          repo: github.context.repo.repo,
+          issue_number: issue,
+          per_page: 100,
+        })
+      ).data.find(comment => comment.body?.startsWith(commentTitle));
+
+      if (existingComment?.id) {
+        await this.octokit.rest.issues.deleteComment({
+          owner: github.context.repo.owner,
+          repo: github.context.repo.repo,
+          comment_id: existingComment.id,
+        });
+      }
+    } catch (error) {
+      if (error instanceof Error) core.debug(`Failed to delete a comment due to ${error.message}.`);
+    }
+  }
+
   private async cancelRun(runnerId: number, error: Error): Promise<void> {
     core.info(`Checkrun is cancelled due to ${error.message}.`);
 
