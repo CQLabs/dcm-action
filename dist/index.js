@@ -236,10 +236,13 @@ function run() {
             const conclusion = (0, analyze_1.getConclusion)(errors, warnings, style, perf, options);
             const summary = (0, analyze_1.getSummary)(errors, warnings, style, perf);
             const reportUrl = yield reporter.complete(conclusion, runner.data.id, options.reportTitle, summary);
+            const commentTitle = `## ${options.reportTitle}`;
             if (options.addComment || (options.addCommentOnFail && conclusion === 'failure')) {
-                const commentTitle = `## ${options.reportTitle}`;
                 const commentBody = `${summary.replace('## Summary', commentTitle)}\n\nFull report: ${reportUrl}`;
                 yield reporter.postComment(commentTitle, commentBody);
+            }
+            else if (options.addCommentOnFail && conclusion === 'success') {
+                yield reporter.deleteComment(commentTitle);
             }
             core.endGroup();
             if (conclusion === 'failure') {
@@ -534,6 +537,32 @@ class Reporter {
             catch (error) {
                 if (error instanceof Error)
                     core.debug(`Failed to create a comment due to ${error.message}.`);
+            }
+        });
+    }
+    deleteComment(commentTitle) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const issue = github.context.issue.number;
+            if (issue === null || issue === undefined)
+                return;
+            try {
+                const existingComment = (yield this.octokit.rest.issues.listComments({
+                    owner: github.context.repo.owner,
+                    repo: github.context.repo.repo,
+                    issue_number: issue,
+                    per_page: 100,
+                })).data.find(comment => { var _a; return (_a = comment.body) === null || _a === void 0 ? void 0 : _a.startsWith(commentTitle); });
+                if (existingComment === null || existingComment === void 0 ? void 0 : existingComment.id) {
+                    yield this.octokit.rest.issues.deleteComment({
+                        owner: github.context.repo.owner,
+                        repo: github.context.repo.repo,
+                        comment_id: existingComment.id,
+                    });
+                }
+            }
+            catch (error) {
+                if (error instanceof Error)
+                    core.debug(`Failed to delete a comment due to ${error.message}.`);
             }
         });
     }
