@@ -48,7 +48,7 @@ export async function analyze(options: Options): Promise<readonly Report[]> {
   if (options.fatalPerf) {
     execOptions.push('--fatal-performance');
   }
-  execOptions.push(options.folders.join(' '));
+  options.folders.forEach(folder => execOptions.push(folder));
 
   core.info(`Running dcm ${execOptions.join(' ')}`);
 
