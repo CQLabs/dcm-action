@@ -48,7 +48,7 @@ export async function analyze(options: Options): Promise<readonly Report[]> {
   if (options.fatalPerf) {
     execOptions.push('--fatal-performance');
   }
-  options.folders.forEach(folder => execOptions.push(folder));
+  options.folders.forEach(folder => execOptions.push(`"${folder}"`));
 
   core.info(`Running dcm ${execOptions.join(' ')}`);
 
@@ -57,6 +57,9 @@ export async function analyze(options: Options): Promise<readonly Report[]> {
     // ignoreReturnCode: true,
   });
   const trimmed = jsonOutput.stdout.trim();
+
+  core.debug(`stdout: ${trimmed}`);
+  core.debug(`stderr: ${jsonOutput.stderr.trim()}`);
 
   try {
     const output = JSON.parse(trimmed) as JsonOutput;
