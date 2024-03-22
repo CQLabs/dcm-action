@@ -129,8 +129,8 @@ function analyze(options) {
         options.folders.forEach(folder => execOptions.push(folder));
         core.info(`Running dcm ${execOptions.join(' ')}`);
         const jsonOutput = yield exec.getExecOutput('dcm', execOptions, {
-            silent: true,
-            ignoreReturnCode: true,
+        // silent: true,
+        // ignoreReturnCode: true,
         });
         const trimmed = jsonOutput.stdout.trim();
         try {
