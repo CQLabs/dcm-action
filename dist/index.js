@@ -129,12 +129,10 @@ function analyze(options) {
         options.folders.forEach(folder => execOptions.push(folder));
         core.info(`Running dcm ${execOptions.join(' ')}`);
         const jsonOutput = yield exec.getExecOutput('dcm', execOptions, {
-        // silent: true,
-        // ignoreReturnCode: true,
+            silent: true,
+            ignoreReturnCode: true,
         });
         const trimmed = jsonOutput.stdout.trim();
-        core.debug(`stdout: ${trimmed}`);
-        core.debug(`stderr: ${jsonOutput.stderr.trim()}`);
         try {
             const output = JSON.parse(trimmed);
             return output.records;
@@ -297,7 +295,6 @@ function getOptions() {
         .getInput('folders')
         .split(',')
         .map(folder => folder.trim());
-    core.info(`Parsed folders ${folders.join(' ')}`);
     const packageName = core.getInput('package_name');
     const reportTitle = packageName ? `DCM report for ${packageName}` : 'DCM report';
     return {

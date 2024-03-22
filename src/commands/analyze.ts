@@ -53,13 +53,10 @@ export async function analyze(options: Options): Promise<readonly Report[]> {
   core.info(`Running dcm ${execOptions.join(' ')}`);
 
   const jsonOutput = await exec.getExecOutput('dcm', execOptions, {
-    // silent: true,
-    // ignoreReturnCode: true,
+    silent: true,
+    ignoreReturnCode: true,
   });
   const trimmed = jsonOutput.stdout.trim();
-
-  core.debug(`stdout: ${trimmed}`);
-  core.debug(`stderr: ${jsonOutput.stderr.trim()}`);
 
   try {
     const output = JSON.parse(trimmed) as JsonOutput;

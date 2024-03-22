@@ -20,8 +20,6 @@ export function getOptions(): Options {
     .split(',')
     .map(folder => folder.trim());
 
-  core.info(`Parsed folders ${folders.join(' ')}`);
-
   const packageName = core.getInput('package_name');
   const reportTitle = packageName ? `DCM report for ${packageName}` : 'DCM report';
 
