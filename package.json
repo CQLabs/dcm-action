@@ -1,7 +1,7 @@
 {
   "name": "dcm-action",
   "description": "Run DCM checks",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "license": "MIT",
   "author": "dcmdev",
   "private": true,
