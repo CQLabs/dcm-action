@@ -126,7 +126,7 @@ function analyze(options) {
         if (options.fatalPerf) {
             execOptions.push('--fatal-performance');
         }
-        execOptions.push(options.folders.join(' '));
+        options.folders.forEach(folder => execOptions.push(folder));
         core.info(`Running dcm ${execOptions.join(' ')}`);
         const jsonOutput = yield exec.getExecOutput('dcm', execOptions, {
             silent: true,
@@ -138,10 +138,9 @@ function analyze(options) {
             return output.records;
         }
         catch (error) {
-            // TODO: re-enable when executable is fixed
-            // if (error instanceof Error) {
-            //   core.setFailed(`Failed to parse DCM output: ${error.message},\n${trimmed}`);
-            // }
+            if (error instanceof Error) {
+                core.setFailed(`Failed to parse DCM output: ${error.message},\n${trimmed}`);
+            }
             return [];
         }
     });

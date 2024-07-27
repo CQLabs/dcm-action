@@ -38,6 +38,7 @@ inputs:
     description: 'Treat warning level issues as fatal.'
     required: false
     default: 'true'
+  # deprecated since DCM 1.19.0
   fatal_performance:
     description: 'Treat performance level issues as fatal.'
     required: false
@@ -48,5 +49,5 @@ inputs:
     default: 'true'
 
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
