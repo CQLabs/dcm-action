@@ -76,7 +76,7 @@ export class Reporter {
         }
       }
 
-      core.debug(`Adding final ${annotationsToSend.length} annotations.`);
+      core.debug(`Adding final ${annotationsToSend.length} annotations`);
 
       await this.octokit.rest.checks.update({
         owner: github.context.repo.owner,
@@ -132,6 +132,8 @@ export class Reporter {
     if (issue === null || issue === undefined) return;
 
     try {
+      core.debug('Searching for an existing comment...');
+
       const existingComment = (
         await this.octokit.rest.issues.listComments({
           owner: github.context.repo.owner,
@@ -142,6 +144,8 @@ export class Reporter {
       ).data.find(comment => comment.body?.startsWith(commentTitle));
 
       if (existingComment?.id) {
+        core.debug('Updating the existing comment');
+
         await this.octokit.rest.issues.updateComment({
           owner: github.context.repo.owner,
           repo: github.context.repo.repo,
@@ -152,6 +156,8 @@ export class Reporter {
         return;
       }
 
+      core.debug('Creating a new comment instead');
+
       await this.octokit.rest.issues.createComment({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
@@ -159,7 +165,7 @@ export class Reporter {
         body: commentText,
       });
     } catch (error) {
-      if (error instanceof Error) core.debug(`Failed to create a comment due to ${error.message}.`);
+      if (error instanceof Error) core.debug(`Failed to create a comment due to ${error.message}`);
     }
   }
 
@@ -168,6 +174,8 @@ export class Reporter {
     if (issue === null || issue === undefined) return;
 
     try {
+      core.debug('Searching for an existing comment...');
+
       const existingComment = (
         await this.octokit.rest.issues.listComments({
           owner: github.context.repo.owner,
@@ -178,6 +186,8 @@ export class Reporter {
       ).data.find(comment => comment.body?.startsWith(commentTitle));
 
       if (existingComment?.id) {
+        core.debug('Deleting the existing comment');
+
         await this.octokit.rest.issues.deleteComment({
           owner: github.context.repo.owner,
           repo: github.context.repo.repo,
@@ -185,12 +195,12 @@ export class Reporter {
         });
       }
     } catch (error) {
-      if (error instanceof Error) core.debug(`Failed to delete a comment due to ${error.message}.`);
+      if (error instanceof Error) core.debug(`Failed to delete a comment due to ${error.message}`);
     }
   }
 
   private async cancelRun(runnerId: number, error: Error): Promise<void> {
-    core.info(`Checkrun is cancelled due to ${error.message}.`);
+    core.info(`Checkrun is cancelled due to ${error.message}`);
 
     await this.octokit.rest.checks.update({
       owner: github.context.repo.owner,

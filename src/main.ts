@@ -44,6 +44,8 @@ async function run(): Promise<void> {
       await reporter.postComment(commentTitle, commentBody);
     } else if (options.addCommentOnFail && conclusion === 'success') {
       await reporter.deleteComment(commentTitle);
+    } else {
+      core.debug('Skipping adding a comment');
     }
 
     core.endGroup();
