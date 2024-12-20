@@ -51,10 +51,14 @@ export class Reporter {
               perf += 1;
             }
 
+            core.debug(`Preparing an annotation for ${report.path}, rule id: ${issue.ruleId}`);
+
             const annotation = issueToAnnotation(issue, report.path);
             annotationsToSend.push(annotation);
 
             if (annotationsToSend.length === Reporter.apiLimit) {
+              core.debug(`Adding ${annotationsToSend.length} annotations...`);
+
               await this.octokit.rest.checks.update({
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
@@ -71,6 +75,8 @@ export class Reporter {
           }
         }
       }
+
+      core.debug(`Adding final ${annotationsToSend.length} annotations.`);
 
       await this.octokit.rest.checks.update({
         owner: github.context.repo.owner,
