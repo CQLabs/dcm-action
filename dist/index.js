@@ -160,7 +160,9 @@ function analyze(options) {
         }
         catch (error) {
             if (error instanceof Error) {
-                core.setFailed(`Failed to parse DCM output: ${error.message},\n${trimmed}`);
+                const trimmedError = jsonOutput.stderr.trim();
+                const message = trimmedError ? [error.message, trimmedError].join('\n') : error.message;
+                core.setFailed(`Failed to parse DCM output: ${message},\n\n${trimmed}`);
             }
             return [];
         }
@@ -270,6 +272,9 @@ function run() {
             }
             else if (options.addCommentOnFail && conclusion === 'success') {
                 yield reporter.deleteComment(commentTitle);
+            }
+            else {
+                core.debug('Skipping adding a comment');
             }
             core.endGroup();
             if (conclusion === 'failure') {
@@ -487,9 +492,11 @@ class Reporter {
                             else if (issue.severity === 'perf') {
                                 perf += 1;
                             }
+                            core.debug(`Preparing an annotation for ${report.path}, rule id: ${issue.ruleId}`);
                             const annotation = (0, mapper_1.issueToAnnotation)(issue, report.path);
                             annotationsToSend.push(annotation);
                             if (annotationsToSend.length === Reporter.apiLimit) {
+                                core.debug(`Adding ${annotationsToSend.length} annotations...`);
                                 yield this.octokit.rest.checks.update({
                                     owner: github.context.repo.owner,
                                     repo: github.context.repo.repo,
@@ -505,6 +512,7 @@ class Reporter {
                         }
                     }
                 }
+                core.debug(`Adding final ${annotationsToSend.length} annotations`);
                 yield this.octokit.rest.checks.update({
                     owner: github.context.repo.owner,
                     repo: github.context.repo.repo,
@@ -557,6 +565,7 @@ class Reporter {
             if (issue === null || issue === undefined)
                 return;
             try {
+                core.debug('Searching for an existing comment...');
                 const existingComment = (yield this.octokit.rest.issues.listComments({
                     owner: github.context.repo.owner,
                     repo: github.context.repo.repo,
@@ -564,6 +573,7 @@ class Reporter {
                     per_page: 100,
                 })).data.find(comment => { var _a; return (_a = comment.body) === null || _a === void 0 ? void 0 : _a.startsWith(commentTitle); });
                 if (existingComment === null || existingComment === void 0 ? void 0 : existingComment.id) {
+                    core.debug('Updating the existing comment');
                     yield this.octokit.rest.issues.updateComment({
                         owner: github.context.repo.owner,
                         repo: github.context.repo.repo,
@@ -572,6 +582,7 @@ class Reporter {
                     });
                     return;
                 }
+                core.debug('Creating a new comment instead');
                 yield this.octokit.rest.issues.createComment({
                     owner: github.context.repo.owner,
                     repo: github.context.repo.repo,
@@ -581,7 +592,7 @@ class Reporter {
             }
             catch (error) {
                 if (error instanceof Error)
-                    core.debug(`Failed to create a comment due to ${error.message}.`);
+                    core.debug(`Failed to create a comment due to ${error.message}`);
             }
         });
     }
@@ -591,6 +602,7 @@ class Reporter {
             if (issue === null || issue === undefined)
                 return;
             try {
+                core.debug('Searching for an existing comment...');
                 const existingComment = (yield this.octokit.rest.issues.listComments({
                     owner: github.context.repo.owner,
                     repo: github.context.repo.repo,
@@ -598,6 +610,7 @@ class Reporter {
                     per_page: 100,
                 })).data.find(comment => { var _a; return (_a = comment.body) === null || _a === void 0 ? void 0 : _a.startsWith(commentTitle); });
                 if (existingComment === null || existingComment === void 0 ? void 0 : existingComment.id) {
+                    core.debug('Deleting the existing comment');
                     yield this.octokit.rest.issues.deleteComment({
                         owner: github.context.repo.owner,
                         repo: github.context.repo.repo,
@@ -607,13 +620,13 @@ class Reporter {
             }
             catch (error) {
                 if (error instanceof Error)
-                    core.debug(`Failed to delete a comment due to ${error.message}.`);
+                    core.debug(`Failed to delete a comment due to ${error.message}`);
             }
         });
     }
     cancelRun(runnerId, error) {
         return __awaiter(this, void 0, void 0, function* () {
-            core.info(`Checkrun is cancelled due to ${error.message}.`);
+            core.info(`Checkrun is cancelled due to ${error.message}`);
             yield this.octokit.rest.checks.update({
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
