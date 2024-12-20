@@ -63,7 +63,9 @@ export async function analyze(options: Options): Promise<readonly Report[]> {
     return output.records;
   } catch (error) {
     if (error instanceof Error) {
-      core.setFailed(`Failed to parse DCM output: ${error.message},\n${trimmed}`);
+      const trimmedError = jsonOutput.stderr.trim();
+      const message = trimmedError ? [error.message, trimmedError].join('\n') : error.message;
+      core.setFailed(`Failed to parse DCM output: ${message},\n\n${trimmed}`);
     }
 
     return [];
