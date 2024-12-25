@@ -38,11 +38,6 @@ inputs:
     description: 'Treat warning level issues as fatal.'
     required: false
     default: 'true'
-  # deprecated since DCM 1.19.0
-  fatal_performance:
-    description: 'Treat performance level issues as fatal.'
-    required: false
-    default: 'true'
   fatal_style:
     description: 'Treat style level issues as fatal.'
     required: false

@@ -10,7 +10,6 @@ export type Options = {
   readonly addCommentOnFail: boolean;
   readonly reportTitle: string;
   readonly fatalWarnings: boolean;
-  readonly fatalPerf: boolean;
   readonly fatalStyle: boolean;
 };
 
@@ -33,7 +32,6 @@ export function getOptions(): Options {
     addCommentOnFail: core.getBooleanInput('pull_request_comment_on_fail'),
     reportTitle,
     fatalWarnings: core.getBooleanInput('fatal_warnings'),
-    fatalPerf: core.getBooleanInput('fatal_performance'),
     fatalStyle: core.getBooleanInput('fatal_style'),
   };
 }

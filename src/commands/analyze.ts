@@ -4,9 +4,9 @@ import * as exec from '@actions/exec';
 import { Options } from '../options';
 
 export type JsonOutput = {
-  formatVersion: number;
-  records: Report[];
-  timestamp: string;
+  readonly formatVersion: number;
+  readonly records: Report[];
+  readonly timestamp: string;
 };
 
 export type Report = {
@@ -45,9 +45,6 @@ export async function analyze(options: Options): Promise<readonly Report[]> {
   if (options.fatalStyle) {
     execOptions.push('--fatal-style');
   }
-  if (options.fatalPerf) {
-    execOptions.push('--fatal-performance');
-  }
   options.folders.forEach(folder => execOptions.push(folder));
 
   core.info(`Running dcm ${execOptions.join(' ')}`);
@@ -82,7 +79,6 @@ export function getConclusion(
   if (errors) return 'failure';
   if (options.fatalWarnings && warnings) return 'failure';
   if (options.fatalStyle && style) return 'failure';
-  if (options.fatalPerf && perf) return 'failure';
 
   return 'success';
 }
