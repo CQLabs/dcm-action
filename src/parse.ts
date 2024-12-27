@@ -1,3 +1,5 @@
+import * as exec from '@actions/exec';
+import { gte } from 'semver';
 import { existsSync, readFileSync } from 'fs';
 
 export type JsonOutput = {
@@ -56,4 +58,15 @@ export function parseSummary(summary: JsonReportSummary[]): string {
   const text = summary.map(entry => `❌ ${entry.title} - ${entry.value}`).join('\n');
 
   return `## Summary\n${text || '✅ no issues found!'}`;
+}
+
+export async function hasProperVersion(): Promise<boolean> {
+  const output = await exec.getExecOutput('dcm', ['--version'], {
+    silent: true,
+    ignoreReturnCode: true,
+  });
+
+  const version = output.stdout.trim().split(':')[1]?.trim();
+
+  return version !== undefined && gte(version, '1.26.0');
 }

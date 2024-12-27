@@ -5,11 +5,19 @@ import { getOptions } from './options';
 import { Reporter } from './reporter/reporter';
 import { setGitHubAuth } from './auth';
 import { runCommands } from './commands/run';
-import { parseSummary } from './parse';
+import { hasProperVersion, parseSummary } from './parse';
 
 async function run(): Promise<void> {
   try {
     await io.which('dcm', true);
+
+    if (!(await hasProperVersion())) {
+      core.setFailed(
+        'dcm-action v2 requires DCM 1.26+. Consider updating DCM or downgrading the action version.',
+      );
+
+      return;
+    }
 
     const options = getOptions();
     setGitHubAuth(options.pat);
