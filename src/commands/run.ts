@@ -36,15 +36,17 @@ export async function runCommands(options: Options, runnerId: number): Promise<R
 
   core.info(`Running dcm ${execOptions.join(' ')}`);
 
-  await exec.getExecOutput('dcm', execOptions, {
+  const output = await exec.getExecOutput('dcm', execOptions, {
     ignoreReturnCode: true,
   });
 
   try {
     const result = parseOutput(outputFilePath);
     if (result) {
-      return { json: result, conclusion: 'success' };
+      return { json: result, conclusion: output.exitCode === 0 ? 'success' : 'failure' };
     }
+
+    core.setFailed('Failed to parse DCM output.');
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(`Failed to parse DCM output: ${error.message}`);
