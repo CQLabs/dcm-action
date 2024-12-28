@@ -1,5 +1,7 @@
+import os from 'os';
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
+import { join } from 'path';
 
 import { Options } from '../options';
 import { JsonOutput, parseOutput } from '../parse';
@@ -13,7 +15,7 @@ export async function runCommands(options: Options, runnerId: number): Promise<R
   const credentials =
     options.ciKey !== 'oss' ? [`--ci-key=${options.ciKey}`, `--email=${options.ciEmail}`] : [];
 
-  const outputFilePath = `${runnerId}.json`;
+  const outputFilePath = getOutputFilePath(runnerId);
 
   const execOptions = [
     'run',
@@ -54,6 +56,12 @@ export async function runCommands(options: Options, runnerId: number): Promise<R
   }
 
   return { conclusion: 'failure' };
+}
+
+function getOutputFilePath(runnerId: number): string {
+  const tempDirectory = process.env.RUNNER_TEMP || os.tmpdir();
+
+  return join(tempDirectory, `${runnerId}.json`);
 }
 
 function prepareAnalyze(options: Options): string[] {
