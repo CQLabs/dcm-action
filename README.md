@@ -27,7 +27,7 @@ jobs:
         uses: subosito/flutter-action@v2
 
       - name: Install dependencies
-        run: dart pub get
+        run: flutter pub get
 
       - name: Install DCM
         uses: CQLabs/setup-dcm@v1
