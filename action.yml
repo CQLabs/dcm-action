@@ -7,41 +7,172 @@ branding:
   icon: 'search'
 
 inputs:
-  github_token:
-    description: 'Token to connect to GitHub. Use secrets.GITHUB_TOKEN.'
+  # Configuration
+  github-token:
+    description: 'Token to connect to GitHub. Use {{ secrets.GITHUB_TOKEN }}.'
     required: true
-  github_pat:
-    description: 'Personal access token. Required if you have private GitHub repository in the package dependencies.'
+  github-pat:
+    description: 'Personal access token. Required if you have a private GitHub repository in the package dependencies.'
     required: false
-  ci_key:
-    description: 'License key to run on CI server.'
+  ci-key:
+    description: 'DCM license CI/CD key.'
     required: true
-  email:
-    description: 'Email used to purchase the license.'
+  ci-email:
+    description: 'DCM license email.'
     required: true
-  folders:
-    description: 'List of folders and files (separated by commas) to scan.'
-    required: false
-    default: 'lib'
-  pull_request_comment:
-    description: 'Publish report overview directly into your pull request.'
+  pr-comment:
+    description: 'Add a comment with a report overview to your pull requests.'
     required: false
     default: 'true'
-  pull_request_comment_on_fail:
-    description: 'Publish report overview directly into your pull request only when DCM checks fail.'
+  pr-comment-on-fail:
+    description: 'Add a comment with a report overview to your pull requests, but only when any DCM check fails.'
     required: false
     default: 'false'
-  package_name:
+  package-name:
     description: 'Package name to differentiate the report. Set when running several DCM runs at once.'
     required: false
-  fatal_warnings:
-    description: 'Treat warning level issues as fatal.'
+
+  # General
+  folders:
+    description: 'List of folders and files (comma separated) to scan.'
+    required: false
+    default: 'lib'
+  exclude:
+    description: 'List of files to exclude (in Glob syntax).'
+    required: false
+  exclude-public-api:
+    description: 'Exclude publicly exported code from the analysis output.'
+    required: false
+    default: 'false'
+  fatal-found:
+    description: 'Treat any found issue as fatal.'
     required: false
     default: 'true'
-  fatal_style:
-    description: 'Treat style level issues as fatal.'
+
+  # Commands
+  analyze:
+    description: 'Run "dcm analyze".'
     required: false
     default: 'true'
+  analyze-assets:
+    description: 'Run "dcm analyze-assets".'
+    required: false
+    default: 'false'
+  analyze-widgets:
+    description: 'Run "dcm analyze-widgets".'
+    required: false
+    default: 'false'
+  calculate-metrics:
+    description: 'Run "dcm calculate-metrics".'
+    required: false
+    default: 'false'
+  check-code-duplication:
+    description: 'Run "dcm check-code-duplication".'
+    required: false
+    default: 'false'
+  check-dependencies:
+    description: 'Run "dcm check-dependencies".'
+    required: false
+    default: 'false'
+  check-exports-completeness:
+    description: 'Run "dcm check-exports-completeness".'
+    required: false
+    default: 'false'
+  check-parameters:
+    description: 'Run "dcm check-parameters".'
+    required: false
+    default: 'false'
+  check-unused-code:
+    description: 'Run "dcm check-unused-code".'
+    required: false
+    default: 'false'
+  check-unused-files:
+    description: 'Run "dcm check-unused-files".'
+    required: false
+    default: 'false'
+  check-unused-l10n:
+    description: 'Run "dcm check-unused-l10n".'
+    required: false
+    default: 'false'
+
+  # Analyze Assets
+  size:
+    description: 'Size limit for image assets.'
+    required: false
+  webp:
+    description: 'Require converting ".jpg" and ".png" images to ".webp".'
+    required: false
+    default: 'false'
+  naming:
+    description: 'Required naming convention for image assets ("pascal", "kebab" or "snake").'
+    required: false
+  resolution:
+    description: 'Find missing or incorrect resolution-aware image assets.'
+    required: false
+    default: 'true'
+  allowed-formats:
+    description: 'List of allowed formats for particular folders (e.g. "icons:svg").'
+    required: false
+
+  # Analyze Widgets
+  show-similarity:
+    description: 'Include similar widgets into the report.'
+    required: false
+    default: 'false'
+  similarity-threshold:
+    description: 'Set a minimum threshold after which widgets are considered similar.'
+    required: false
+
+  # Check Code Duplication
+  per-package:
+    description: 'Compare code for duplications only within one package.'
+    required: false
+    default: 'false'
+  exclude-overrides:
+    description: 'Exclude methods marked with "@override".'
+    required: false
+    default: 'false'
+  statements-threshold:
+    description: 'Minimum number of statements inside a declaration block.'
+    required: false
+
+  # Check Dependencies
+  ignored-packages:
+    description: 'Package names that should be ignored.'
+    required: false
+
+  # Check Parameters
+  show-same-value:
+    description: 'Include parameters that always get the same constant argument.'
+    required: false
+    default: 'false'
+  show-unused-default-value:
+    description: 'Include parameters with default values that always get an argument.'
+    required: false
+    default: 'false'
+  show-redundant:
+    description: 'Include parameters whose values are always passed with another parameter.'
+    required: false
+    default: 'false'
+  show-unused-vft:
+    description: 'Include "@visibleForTesting" parameters that are never used in tests.'
+    required: false
+    default: 'false'
+  show-broad-types:
+    description: 'Include parameters whose types can be made more specific.'
+    required: false
+    default: 'false'
+
+  # Check Unused Code
+  no-exclude-overridden:
+    description: 'Do not treat overridden members as always used.'
+    required: false
+    default: 'false'
+
+  # Check Unused L10n
+  class-pattern:
+    description: 'Regular expression for class names to detect classes that provide localization (for example, "^AppLocalizations$").'
+    required: false
 
 runs:
   using: 'node20'
