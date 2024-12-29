@@ -91,7 +91,7 @@ function prepareAnalyzeAssets(options: Options): string[] {
     }
 
     if (options.allowedFormats) {
-      command.push(`--allowed-formats=${options.allowedFormats}`);
+      command.push(`--allowed-formats="${options.allowedFormats}"`);
     }
 
     return command;
@@ -149,7 +149,7 @@ function prepareCheckDependencies(options: Options): string[] {
     const command = ['--dependencies'];
 
     if (options.ignoredPackages) {
-      command.push(`--ignored-packages=${options.ignoredPackages}`);
+      command.push(`--ignored-packages="${options.ignoredPackages}"`);
     }
 
     return command;
@@ -218,7 +218,7 @@ function prepareGeneral(options: Options): string[] {
   const result = [];
 
   if (options.exclude) {
-    result.push(`--exclude=${options.exclude}`);
+    result.push(`--exclude="${options.exclude}"`);
   }
 
   if (options.excludePublicApi) {

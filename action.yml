@@ -17,14 +17,14 @@ inputs:
   ci-key:
     description: 'DCM license CI/CD key.'
     required: true
-  ci-email:
+  email:
     description: 'DCM license email.'
     required: true
-  pr-comment:
+  pull-request-comment:
     description: 'Add a comment with a report overview to your pull requests.'
     required: false
     default: 'true'
-  pr-comment-on-fail:
+  pull-request-comment-on-fail:
     description: 'Add a comment with a report overview to your pull requests, but only when any DCM check fails.'
     required: false
     default: 'false'
