@@ -1,4 +1,4 @@
-import { Issue } from '../commands/analyze';
+import { Issue } from '../parse';
 
 enum AnnotationLevel {
   notice = 'notice',
@@ -18,24 +18,27 @@ export type Annotation = {
 };
 
 export function issueToAnnotation(issue: Issue, path: string): Annotation {
-  const isSingleLineIssue = issue.codeSpan.start.line === issue.codeSpan.end.line;
+  const isSingleLineIssue = issue.location?.startLine === issue.location?.endLine;
 
   return {
     path,
-    start_line: issue.codeSpan.start.line,
-    start_column: isSingleLineIssue ? issue.codeSpan.start.column : undefined,
-    end_line: issue.codeSpan.end.line,
-    end_column: isSingleLineIssue ? issue.codeSpan.end.column : undefined,
+    start_line: issue.location?.startLine ?? 1,
+    start_column: isSingleLineIssue ? issue.location?.startColumn : undefined,
+    end_line: issue.location?.endLine ?? 1,
+    end_column: isSingleLineIssue ? issue.location?.endColumn : undefined,
     annotation_level: severityToAnnotationLevel(issue.severity),
     message: issue.message,
   };
 }
 
-function severityToAnnotationLevel(severity: string): AnnotationLevel {
+function severityToAnnotationLevel(severity?: string): AnnotationLevel {
+  if (!severity) {
+    return AnnotationLevel.warning;
+  }
+
   const level = {
     none: AnnotationLevel.notice,
     style: AnnotationLevel.notice,
-    performance: AnnotationLevel.warning,
     warning: AnnotationLevel.warning,
     error: AnnotationLevel.failure,
   }[severity];

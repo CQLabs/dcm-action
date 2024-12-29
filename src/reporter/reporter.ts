@@ -3,8 +3,8 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import type { PullRequest, WorkflowRunEvent } from '@octokit/webhooks-types';
-import { Issue, Report } from '../commands/analyze';
 import { Annotation, issueToAnnotation } from './mapper';
+import { JsonReport } from '../parse';
 
 // eslint-disable-next-line import/prefer-default-export
 export class Reporter {
@@ -23,15 +23,10 @@ export class Reporter {
   }
 
   public async reportIssues(
-    reports: readonly Report[],
+    reports: readonly JsonReport[],
     runnerId: number,
     reportTitle: string,
-  ): Promise<{ errors: number; warnings: number; style: number; perf: number }> {
-    let warnings = 0;
-    let style = 0;
-    let perf = 0;
-    let errors = 0;
-
+  ): Promise<void> {
     const annotationsToSend: Annotation[] = [];
 
     try {
@@ -39,19 +34,7 @@ export class Reporter {
         if (report.issues.length) {
           core.info(`\n${report.path}:`);
           for (const issue of report.issues) {
-            this.logIssue(issue, report.path);
-
-            if (issue.severity === 'error') {
-              errors += 1;
-            } else if (issue.severity === 'warning') {
-              warnings += 1;
-            } else if (issue.severity === 'style') {
-              style += 1;
-            } else if (issue.severity === 'perf') {
-              perf += 1;
-            }
-
-            core.debug(`Preparing an annotation for ${report.path}, rule id: ${issue.ruleId}`);
+            core.debug(`Preparing an annotation for ${report.path}, id: ${issue.id}`);
 
             const annotation = issueToAnnotation(issue, report.path);
             annotationsToSend.push(annotation);
@@ -98,8 +81,6 @@ export class Reporter {
         }
       }
     }
-
-    return { errors, warnings, style, perf };
   }
 
   public async complete(
@@ -216,15 +197,6 @@ export class Reporter {
 Check your logs for more information.`,
       },
     });
-  }
-
-  private logIssue(issue: Issue, path: string): void {
-    const padding = ''.padStart(10);
-
-    core.info(`${issue.severity.padEnd(10).toUpperCase()}${issue.message}
-${padding}at ${path}:${issue.codeSpan.start.line}:${issue.codeSpan.start.column}
-${padding}${issue.ruleId} : ${issue.documentation}
-`);
   }
 
   private getCheckRunSha(): string {
