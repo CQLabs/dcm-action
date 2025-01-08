@@ -128,15 +128,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.runCommands = runCommands;
-const os_1 = __importDefault(__nccwpck_require__(857));
+// import os from 'os';
 const core = __importStar(__nccwpck_require__(7484));
 const exec = __importStar(__nccwpck_require__(5236));
-const path_1 = __nccwpck_require__(6928);
 const parse_1 = __nccwpck_require__(3607);
 function runCommands(options, runnerId) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -180,8 +176,9 @@ function runCommands(options, runnerId) {
     });
 }
 function getOutputFilePath(runnerId) {
-    const tempDirectory = process.env.RUNNER_TEMP || os_1.default.tmpdir();
-    return (0, path_1.join)(tempDirectory, `${runnerId}.json`);
+    // const tempDirectory = process.env.RUNNER_TEMP || os.tmpdir();
+    return `${runnerId}.json`;
+    // return join(tempDirectory, `${runnerId}.json`);
 }
 function prepareAnalyze(options) {
     return options.analyze ? ['--analyze'] : [];
