@@ -607,11 +607,15 @@ const core = __importStar(__nccwpck_require__(7484));
 const semver_1 = __nccwpck_require__(2088);
 const fs_1 = __nccwpck_require__(9896);
 function parseOutput(outputFilePath) {
+    core.info('Parsing output...');
     if (!(0, fs_1.existsSync)(outputFilePath)) {
+        core.info('File does not exist...');
         return undefined;
     }
+    core.info('Reading file...');
     const report = (0, fs_1.readFileSync)(outputFilePath).toString();
     core.info(report);
+    core.info('Parsing file...');
     return JSON.parse(report.trim());
 }
 function parseSummary(summary) {

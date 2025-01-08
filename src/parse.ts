@@ -46,13 +46,19 @@ export type Location = {
 };
 
 export function parseOutput(outputFilePath: string): JsonOutput | undefined {
+  core.info('Parsing output...');
+
   if (!existsSync(outputFilePath)) {
+    core.info('File does not exist...');
     return undefined;
   }
+  core.info('Reading file...');
 
   const report = readFileSync(outputFilePath).toString();
 
   core.info(report);
+
+  core.info('Parsing file...');
 
   return JSON.parse(report.trim()) as JsonOutput;
 }
