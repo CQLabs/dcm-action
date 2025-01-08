@@ -32,7 +32,6 @@ export class Reporter {
     try {
       for (const report of reports) {
         if (report.issues.length) {
-          core.info(`\n${report.path}:`);
           for (const issue of report.issues) {
             core.debug(`Preparing an annotation for ${report.path}, id: ${issue.id}`);
 
