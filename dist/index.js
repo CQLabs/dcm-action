@@ -614,7 +614,9 @@ function parseOutput(outputFilePath) {
     }
     core.info('Reading file...');
     const report = (0, fs_1.readFileSync)(outputFilePath).toString();
-    core.info(report);
+    // core.info(report);
+    core.info(report.substring(report.length - 10));
+    core.info(report.length.toString());
     core.info('Parsing file...');
     return JSON.parse(report.trim());
 }

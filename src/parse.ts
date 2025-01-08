@@ -56,7 +56,10 @@ export function parseOutput(outputFilePath: string): JsonOutput | undefined {
 
   const report = readFileSync(outputFilePath).toString();
 
-  core.info(report);
+  // core.info(report);
+  core.info(report.substring(report.length - 10));
+
+  core.info(report.length.toString());
 
   core.info('Parsing file...');
 
