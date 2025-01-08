@@ -1,5 +1,4 @@
 import * as exec from '@actions/exec';
-import * as core from '@actions/core';
 import { gte } from 'semver';
 import { existsSync, readFileSync } from 'fs';
 
@@ -46,22 +45,11 @@ export type Location = {
 };
 
 export function parseOutput(outputFilePath: string): JsonOutput | undefined {
-  core.info('Parsing output...');
-
   if (!existsSync(outputFilePath)) {
-    core.info('File does not exist...');
     return undefined;
   }
-  core.info('Reading file...');
 
   const report = readFileSync(outputFilePath).toString();
-
-  // core.info(report);
-  core.info(report.substring(report.length - 10));
-
-  core.info(report.length.toString());
-
-  core.info('Parsing file...');
 
   return JSON.parse(report.trim()) as JsonOutput;
 }

@@ -128,11 +128,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.runCommands = runCommands;
-// import os from 'os';
+const os_1 = __importDefault(__nccwpck_require__(857));
 const core = __importStar(__nccwpck_require__(7484));
 const exec = __importStar(__nccwpck_require__(5236));
+const path_1 = __nccwpck_require__(6928);
 const parse_1 = __nccwpck_require__(3607);
 function runCommands(options, runnerId) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -141,7 +145,7 @@ function runCommands(options, runnerId) {
         const execOptions = [
             'run',
             '--reporter=json',
-            `--output-to=${outputFilePath}`,
+            `--output-to="${outputFilePath}"`,
             ...credentials,
             ...prepareAnalyze(options),
             ...prepareAnalyzeAssets(options),
@@ -176,9 +180,8 @@ function runCommands(options, runnerId) {
     });
 }
 function getOutputFilePath(runnerId) {
-    // const tempDirectory = process.env.RUNNER_TEMP || os.tmpdir();
-    return `${runnerId}.json`;
-    // return join(tempDirectory, `${runnerId}.json`);
+    const tempDirectory = process.env.RUNNER_TEMP || os_1.default.tmpdir();
+    return (0, path_1.join)(tempDirectory, `${runnerId}.json`);
 }
 function prepareAnalyze(options) {
     return options.analyze ? ['--analyze'] : [];
@@ -600,21 +603,13 @@ exports.parseOutput = parseOutput;
 exports.parseSummary = parseSummary;
 exports.hasProperVersion = hasProperVersion;
 const exec = __importStar(__nccwpck_require__(5236));
-const core = __importStar(__nccwpck_require__(7484));
 const semver_1 = __nccwpck_require__(2088);
 const fs_1 = __nccwpck_require__(9896);
 function parseOutput(outputFilePath) {
-    core.info('Parsing output...');
     if (!(0, fs_1.existsSync)(outputFilePath)) {
-        core.info('File does not exist...');
         return undefined;
     }
-    core.info('Reading file...');
     const report = (0, fs_1.readFileSync)(outputFilePath).toString();
-    // core.info(report);
-    core.info(report.substring(report.length - 10));
-    core.info(report.length.toString());
-    core.info('Parsing file...');
     return JSON.parse(report.trim());
 }
 function parseSummary(summary) {

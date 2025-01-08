@@ -1,7 +1,7 @@
-// import os from 'os';
+import os from 'os';
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
-// import { join } from 'path';
+import { join } from 'path';
 
 import { Options } from '../options';
 import { JsonOutput, parseOutput } from '../parse';
@@ -20,7 +20,7 @@ export async function runCommands(options: Options, runnerId: number): Promise<R
   const execOptions = [
     'run',
     '--reporter=json',
-    `--output-to=${outputFilePath}`,
+    `--output-to="${outputFilePath}"`,
     ...credentials,
     ...prepareAnalyze(options),
     ...prepareAnalyzeAssets(options),
@@ -59,10 +59,9 @@ export async function runCommands(options: Options, runnerId: number): Promise<R
 }
 
 function getOutputFilePath(runnerId: number): string {
-  // const tempDirectory = process.env.RUNNER_TEMP || os.tmpdir();
+  const tempDirectory = process.env.RUNNER_TEMP || os.tmpdir();
 
-  return `${runnerId}.json`;
-  // return join(tempDirectory, `${runnerId}.json`);
+  return join(tempDirectory, `${runnerId}.json`);
 }
 
 function prepareAnalyze(options: Options): string[] {
