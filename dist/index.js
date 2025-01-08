@@ -603,6 +603,7 @@ exports.parseOutput = parseOutput;
 exports.parseSummary = parseSummary;
 exports.hasProperVersion = hasProperVersion;
 const exec = __importStar(__nccwpck_require__(5236));
+const core = __importStar(__nccwpck_require__(7484));
 const semver_1 = __nccwpck_require__(2088);
 const fs_1 = __nccwpck_require__(9896);
 function parseOutput(outputFilePath) {
@@ -610,8 +611,7 @@ function parseOutput(outputFilePath) {
         return undefined;
     }
     const report = (0, fs_1.readFileSync)(outputFilePath).toString();
-    // eslint-disable-next-line no-console
-    console.log(report);
+    core.info(report);
     return JSON.parse(report.trim());
 }
 function parseSummary(summary) {
