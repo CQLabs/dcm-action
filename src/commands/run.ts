@@ -20,7 +20,7 @@ export async function runCommands(options: Options, runnerId: number): Promise<R
   const execOptions = [
     'run',
     '--reporter=json',
-    `--output-to="${outputFilePath}"`,
+    `--output-to=${outputFilePath}`,
     ...credentials,
     ...prepareAnalyze(options),
     ...prepareAnalyzeAssets(options),

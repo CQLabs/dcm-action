@@ -145,7 +145,7 @@ function runCommands(options, runnerId) {
         const execOptions = [
             'run',
             '--reporter=json',
-            `--output-to="${outputFilePath}"`,
+            `--output-to=${outputFilePath}`,
             ...credentials,
             ...prepareAnalyze(options),
             ...prepareAnalyzeAssets(options),
