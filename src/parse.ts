@@ -1,4 +1,5 @@
 import * as exec from '@actions/exec';
+import * as core from '@actions/core';
 import { gte } from 'semver';
 import { existsSync, readFileSync } from 'fs';
 
@@ -51,8 +52,7 @@ export function parseOutput(outputFilePath: string): JsonOutput | undefined {
 
   const report = readFileSync(outputFilePath).toString();
 
-  // eslint-disable-next-line no-console
-  console.log(report);
+  core.info(report);
 
   return JSON.parse(report.trim()) as JsonOutput;
 }
