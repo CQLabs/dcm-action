@@ -292,7 +292,7 @@ function prepareCheckUnusedFiles(options) {
     return options.checkUnusedFiles ? ['--unused-files'] : [];
 }
 function prepareCheckUnusedL10n(options) {
-    return options.checkUnusedL10n ? [' --unused-l10n'] : [];
+    return options.checkUnusedL10n ? ['--unused-l10n'] : [];
 }
 function prepareGeneral(options) {
     const result = [];
@@ -414,6 +414,9 @@ function run() {
                 else {
                     core.debug('Skipping adding a comment');
                 }
+            }
+            else {
+                yield reporter.cancelRun(runner.data.id, new Error('Failed to parse DCM output!'));
             }
             core.endGroup();
             if (conclusion === 'failure') {
@@ -607,6 +610,8 @@ function parseOutput(outputFilePath) {
         return undefined;
     }
     const report = (0, fs_1.readFileSync)(outputFilePath).toString();
+    // eslint-disable-next-line no-console
+    console.log(report);
     return JSON.parse(report.trim());
 }
 function parseSummary(summary) {
