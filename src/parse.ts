@@ -51,6 +51,9 @@ export function parseOutput(outputFilePath: string): JsonOutput | undefined {
 
   const report = readFileSync(outputFilePath).toString();
 
+  // eslint-disable-next-line no-console
+  console.log(report);
+
   return JSON.parse(report.trim()) as JsonOutput;
 }
 
