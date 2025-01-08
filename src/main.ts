@@ -67,6 +67,8 @@ async function run(): Promise<void> {
       } else {
         core.debug('Skipping adding a comment');
       }
+    } else {
+      await reporter.cancelRun(runner.data.id, new Error('Failed to parse DCM output!'));
     }
 
     core.endGroup();
