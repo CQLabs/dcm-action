@@ -211,7 +211,7 @@ function prepareCheckUnusedFiles(options: Options): string[] {
 }
 
 function prepareCheckUnusedL10n(options: Options): string[] {
-  return options.checkUnusedL10n ? [' --unused-l10n'] : [];
+  return options.checkUnusedL10n ? ['--unused-l10n'] : [];
 }
 
 function prepareGeneral(options: Options): string[] {
