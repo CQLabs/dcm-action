@@ -30,12 +30,12 @@ jobs:
         run: flutter pub get
 
       - name: Install DCM
-        uses: CQLabs/setup-dcm@v1
+        uses: CQLabs/setup-dcm@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run DCM
-        uses: CQLabs/dcm-action@v1
+        uses: CQLabs/dcm-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           ci-key: ${{ secrets.DCM_CI_KEY }}
