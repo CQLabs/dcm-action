@@ -137,6 +137,7 @@ const os_1 = __importDefault(__nccwpck_require__(857));
 const core = __importStar(__nccwpck_require__(7484));
 const exec = __importStar(__nccwpck_require__(5236));
 const path_1 = __nccwpck_require__(6928);
+const semver_1 = __nccwpck_require__(2088);
 const parse_1 = __nccwpck_require__(3607);
 function runCommands(options, runnerId) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -308,6 +309,9 @@ function prepareGeneral(options) {
     else {
         result.push('--no-fatal-found');
     }
+    if (options.fatalLevel && options.toolVersion && (0, semver_1.gte)(options.toolVersion, '1.29.0')) {
+        result.push(`--fatal-level=${options.fatalLevel}`);
+    }
     options.folders.forEach(folder => result.push(folder));
     return result;
 }
@@ -376,11 +380,12 @@ function run() {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
         try {
             yield io.which('dcm', true);
-            if (!(yield (0, parse_1.hasProperVersion)())) {
+            const toolVersion = yield (0, parse_1.getToolVersion)();
+            if (!(0, parse_1.hasProperVersion)(toolVersion)) {
                 core.setFailed('dcm-action v2 requires DCM 1.26+. Consider updating DCM or downgrading the action version.');
                 return;
             }
-            const options = (0, options_1.getOptions)();
+            const options = (0, options_1.getOptions)(toolVersion);
             (0, auth_1.setGitHubAuth)(options.pat);
             core.startGroup('Analyzing');
             const reporter = new reporter_1.Reporter(github.getOctokit(options.token));
@@ -475,7 +480,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getOptions = getOptions;
 const core = __importStar(__nccwpck_require__(7484));
-function getOptions() {
+function getOptions(toolVersion) {
     const folders = core
         .getInput('folders')
         .split(',')
@@ -496,11 +501,13 @@ function getOptions() {
         addComment: core.getBooleanInput('pull-request-comment'),
         addCommentOnFail: core.getBooleanInput('pull-request-comment-on-fail'),
         reportTitle,
+        toolVersion,
         // General
         folders,
         exclude,
         excludePublicApi: core.getBooleanInput('exclude-public-api'),
         fatalFound: core.getBooleanInput('fatal-found'),
+        fatalLevel: core.getInput('fatal-level'),
         // Commands
         analyze: core.getBooleanInput('analyze'),
         analyzeAssets: core.getBooleanInput('analyze-assets'),
@@ -601,6 +608,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseOutput = parseOutput;
 exports.parseSummary = parseSummary;
+exports.getToolVersion = getToolVersion;
 exports.hasProperVersion = hasProperVersion;
 const exec = __importStar(__nccwpck_require__(5236));
 const semver_1 = __nccwpck_require__(2088);
@@ -616,16 +624,18 @@ function parseSummary(summary) {
     const text = summary.map(entry => `❌ ${entry.title} - ${entry.value}`).join('\n');
     return `## Summary\n${text || '✅ no issues found!'}`;
 }
-function hasProperVersion() {
+function getToolVersion() {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
         const output = yield exec.getExecOutput('dcm', ['--version'], {
             silent: true,
             ignoreReturnCode: true,
         });
-        const version = (_a = output.stdout.trim().split(':')[1]) === null || _a === void 0 ? void 0 : _a.trim();
-        return version !== undefined && (0, semver_1.gte)(version, '1.26.0');
+        return (_a = output.stdout.trim().split(':')[1]) === null || _a === void 0 ? void 0 : _a.trim();
     });
+}
+function hasProperVersion(toolVersion) {
+    return toolVersion !== undefined && (0, semver_1.gte)(toolVersion, '1.26.0');
 }
 
 
