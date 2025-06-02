@@ -60,13 +60,15 @@ export function parseSummary(summary: JsonReportSummary[]): string {
   return `## Summary\n${text || '✅ no issues found!'}`;
 }
 
-export async function hasProperVersion(): Promise<boolean> {
+export async function getToolVersion(): Promise<string | undefined> {
   const output = await exec.getExecOutput('dcm', ['--version'], {
     silent: true,
     ignoreReturnCode: true,
   });
 
-  const version = output.stdout.trim().split(':')[1]?.trim();
+  return output.stdout.trim().split(':')[1]?.trim();
+}
 
-  return version !== undefined && gte(version, '1.26.0');
+export function hasProperVersion(toolVersion?: string): boolean {
+  return toolVersion !== undefined && gte(toolVersion, '1.26.0');
 }

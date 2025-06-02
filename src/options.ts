@@ -9,12 +9,14 @@ export type Options = {
   readonly addComment: boolean;
   readonly addCommentOnFail: boolean;
   readonly reportTitle: string;
+  readonly toolVersion?: string;
 
   // General
   readonly folders: string[];
   readonly exclude: string;
   readonly excludePublicApi: boolean;
   readonly fatalFound: boolean;
+  readonly fatalLevel: string;
 
   // Commands
   readonly analyze: boolean;
@@ -62,7 +64,7 @@ export type Options = {
   readonly classPattern: string;
 };
 
-export function getOptions(): Options {
+export function getOptions(toolVersion?: string): Options {
   const folders = core
     .getInput('folders')
     .split(',')
@@ -87,11 +89,13 @@ export function getOptions(): Options {
     addComment: core.getBooleanInput('pull-request-comment'),
     addCommentOnFail: core.getBooleanInput('pull-request-comment-on-fail'),
     reportTitle,
+    toolVersion,
     // General
     folders,
     exclude,
     excludePublicApi: core.getBooleanInput('exclude-public-api'),
     fatalFound: core.getBooleanInput('fatal-found'),
+    fatalLevel: core.getInput('fatal-level'),
     // Commands
     analyze: core.getBooleanInput('analyze'),
     analyzeAssets: core.getBooleanInput('analyze-assets'),

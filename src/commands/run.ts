@@ -2,6 +2,7 @@ import os from 'os';
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import { join } from 'path';
+import { gte } from 'semver';
 
 import { Options } from '../options';
 import { JsonOutput, parseOutput } from '../parse';
@@ -229,6 +230,10 @@ function prepareGeneral(options: Options): string[] {
     result.push('--fatal-found');
   } else {
     result.push('--no-fatal-found');
+  }
+
+  if (options.fatalLevel && options.toolVersion && gte(options.toolVersion, '1.29.0')) {
+    result.push(`--fatal-level=${options.fatalLevel}`);
   }
 
   options.folders.forEach(folder => result.push(folder));

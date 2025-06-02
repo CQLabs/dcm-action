@@ -5,13 +5,15 @@ import { getOptions } from './options';
 import { Reporter } from './reporter/reporter';
 import { setGitHubAuth } from './auth';
 import { runCommands } from './commands/run';
-import { hasProperVersion, parseSummary } from './parse';
+import { getToolVersion, hasProperVersion, parseSummary } from './parse';
 
 async function run(): Promise<void> {
   try {
     await io.which('dcm', true);
 
-    if (!(await hasProperVersion())) {
+    const toolVersion = await getToolVersion();
+
+    if (!hasProperVersion(toolVersion)) {
       core.setFailed(
         'dcm-action v2 requires DCM 1.26+. Consider updating DCM or downgrading the action version.',
       );
@@ -19,7 +21,7 @@ async function run(): Promise<void> {
       return;
     }
 
-    const options = getOptions();
+    const options = getOptions(toolVersion);
     setGitHubAuth(options.pat);
 
     core.startGroup('Analyzing');

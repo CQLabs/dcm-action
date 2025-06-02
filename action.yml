@@ -48,6 +48,9 @@ inputs:
     description: 'Treat any found issue as fatal.'
     required: false
     default: 'true'
+  fatal-level:
+    description: 'Treat equal or higher lint issues severity as fatal (unset by default)'
+    required: false
 
   # Commands
   analyze:
