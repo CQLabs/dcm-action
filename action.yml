@@ -136,7 +136,10 @@ inputs:
     required: false
     default: 'false'
   statements-threshold:
-    description: 'Minimum number of statements inside a declaration block.'
+    description: 'Minimum number of lines for a duplication entry.'
+    required: false
+  entries-threshold:
+    description: 'Minimum number of duplication entries to report (since DCM 1.30.0).'
     required: false
 
   # Check Dependencies

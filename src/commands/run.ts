@@ -135,8 +135,12 @@ function prepareCheckCodeDuplication(options: Options): string[] {
       command.push('--exclude-overrides');
     }
 
-    if (options.statementsThreshold) {
-      command.push(`--statements-threshold=${options.statementsThreshold}`);
+    if (options.linesThreshold) {
+      command.push(`--statements-threshold=${options.linesThreshold}`);
+    }
+
+    if (options.entriesThreshold && options.toolVersion && gte(options.toolVersion, '1.30.0')) {
+      command.push(`--entries-threshold=${options.entriesThreshold}`);
     }
 
     return command;

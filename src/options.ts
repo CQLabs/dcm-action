@@ -45,7 +45,8 @@ export type Options = {
   // Check Code Duplication
   readonly perPackage: boolean;
   readonly excludeOverrides: boolean;
-  readonly statementsThreshold: string;
+  readonly linesThreshold: string;
+  readonly entriesThreshold: string;
 
   // Check Dependencies
   readonly ignoredPackages: string;
@@ -120,7 +121,8 @@ export function getOptions(toolVersion?: string): Options {
     // Check Code Duplication
     perPackage: core.getBooleanInput('per-package'),
     excludeOverrides: core.getBooleanInput('exclude-overrides'),
-    statementsThreshold: core.getInput('statements-threshold'),
+    linesThreshold: core.getInput('statements-threshold'),
+    entriesThreshold: core.getInput('entries-threshold'),
     // Check Dependencies
     ignoredPackages,
     // Check Parameters
