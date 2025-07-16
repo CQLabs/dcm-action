@@ -237,8 +237,11 @@ function prepareCheckCodeDuplication(options) {
         if (options.excludeOverrides) {
             command.push('--exclude-overrides');
         }
-        if (options.statementsThreshold) {
-            command.push(`--statements-threshold=${options.statementsThreshold}`);
+        if (options.linesThreshold) {
+            command.push(`--statements-threshold=${options.linesThreshold}`);
+        }
+        if (options.entriesThreshold && options.toolVersion && (0, semver_1.gte)(options.toolVersion, '1.30.0')) {
+            command.push(`--entries-threshold=${options.entriesThreshold}`);
         }
         return command;
     }
@@ -532,7 +535,8 @@ function getOptions(toolVersion) {
         // Check Code Duplication
         perPackage: core.getBooleanInput('per-package'),
         excludeOverrides: core.getBooleanInput('exclude-overrides'),
-        statementsThreshold: core.getInput('statements-threshold'),
+        linesThreshold: core.getInput('statements-threshold'),
+        entriesThreshold: core.getInput('entries-threshold'),
         // Check Dependencies
         ignoredPackages,
         // Check Parameters
