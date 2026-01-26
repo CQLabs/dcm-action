@@ -1,12 +1,9 @@
-/* eslint-disable no-await-in-loop */
-/* eslint-disable no-restricted-syntax */
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import type { PullRequest, WorkflowRunEvent } from '@octokit/webhooks-types';
 import { Annotation, issueToAnnotation } from './mapper';
 import { JsonReport } from '../parse';
 
-// eslint-disable-next-line import/prefer-default-export
 export class Reporter {
   static readonly apiLimit = 50;
 
@@ -203,7 +200,7 @@ Check your logs for more information.`,
       core.info(
         'Action was triggered by workflow_run: using SHA and RUN_ID from triggering workflow',
       );
-      const event = github.context.payload.workflow_run as WorkflowRunEvent;
+      const event = github.context.payload.workflow_run as WorkflowRunEvent | undefined;
       if (!event) {
         throw new Error("Event of type 'workflow_run' is missing 'workflow_run' field");
       }
