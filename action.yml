@@ -85,6 +85,10 @@ inputs:
     description: 'Run "dcm check-parameters".'
     required: false
     default: 'false'
+  check-unnecessarily-public-code:
+    description: 'Run "dcm check-unnecessarily-public-code".'
+    required: false
+    default: 'false'
   check-unused-code:
     description: 'Run "dcm check-unused-code".'
     required: false

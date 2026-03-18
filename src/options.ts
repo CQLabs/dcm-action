@@ -27,6 +27,7 @@ export type Options = {
   readonly checkDependencies: boolean;
   readonly checkExportsCompleteness: boolean;
   readonly checkParameters: boolean;
+  readonly checkUnnecessarilyPublicCode: boolean;
   readonly checkUnusedCode: boolean;
   readonly checkUnusedFiles: boolean;
   readonly checkUnusedL10n: boolean;
@@ -106,6 +107,7 @@ export function getOptions(toolVersion?: string): Options {
     checkDependencies: core.getBooleanInput('check-dependencies'),
     checkExportsCompleteness: core.getBooleanInput('check-exports-completeness'),
     checkParameters: core.getBooleanInput('check-parameters'),
+    checkUnnecessarilyPublicCode: core.getBooleanInput('check-unnecessarily-public-code'),
     checkUnusedCode: core.getBooleanInput('check-unused-code'),
     checkUnusedFiles: core.getBooleanInput('check-unused-files'),
     checkUnusedL10n: core.getBooleanInput('check-unused-l10n'),

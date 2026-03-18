@@ -42,6 +42,7 @@ async function run(): Promise<void> {
         ...(json.unusedL10nResults ?? []),
         ...(json.dependenciesResults ?? []),
         ...(json.parametersResults ?? []),
+        ...(json.unnecessarilyPublicCodeResults ?? []),
         ...(json.exportResults ?? []),
       ];
 

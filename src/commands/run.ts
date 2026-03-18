@@ -31,6 +31,7 @@ export async function runCommands(options: Options, runnerId: number): Promise<R
     ...prepareCheckDependencies(options),
     ...prepareCheckExportsCompleteness(options),
     ...prepareCheckParameters(options),
+    ...prepareCheckUnnecessarilyPublicCode(options),
     ...prepareCheckUnusedCode(options),
     ...prepareCheckUnusedFiles(options),
     ...prepareCheckUnusedL10n(options),
@@ -195,6 +196,14 @@ function prepareCheckParameters(options: Options): string[] {
   }
 
   return [];
+}
+
+function prepareCheckUnnecessarilyPublicCode(options: Options): string[] {
+  return options.checkUnnecessarilyPublicCode &&
+    options.toolVersion &&
+    gte(options.toolVersion, '1.36.0')
+    ? ['--unnecessarily-public-code']
+    : [];
 }
 
 function prepareCheckUnusedCode(options: Options): string[] {

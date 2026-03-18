@@ -15,6 +15,7 @@ export type JsonOutput = {
   readonly unusedL10nResults?: JsonReport[];
   readonly dependenciesResults?: JsonReport[];
   readonly parametersResults?: JsonReport[];
+  readonly unnecessarilyPublicCodeResults?: JsonReport[];
   readonly exportResults?: JsonReport[];
   readonly summary: JsonReportSummary[];
 };
