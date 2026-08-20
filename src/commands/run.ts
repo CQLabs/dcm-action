@@ -32,6 +32,7 @@ export async function runCommands(options: Options, runnerId: number): Promise<R
     ...prepareCheckExportsCompleteness(options),
     ...prepareCheckParameters(options),
     ...prepareCheckUnnecessarilyPublicCode(options),
+    ...prepareCheckUnnecessarilyMutableFields(options),
     ...prepareCheckUnusedCode(options),
     ...prepareCheckUnusedFiles(options),
     ...prepareCheckUnusedL10n(options),
@@ -203,6 +204,14 @@ function prepareCheckUnnecessarilyPublicCode(options: Options): string[] {
     options.toolVersion &&
     gte(options.toolVersion, '1.36.0')
     ? ['--unnecessarily-public-code']
+    : [];
+}
+
+function prepareCheckUnnecessarilyMutableFields(options: Options): string[] {
+  return options.checkUnnecessarilyMutableFields &&
+    options.toolVersion &&
+    gte(options.toolVersion, '1.39.0')
+    ? ['--unnecessarily-mutable-fields']
     : [];
 }
 

@@ -16,6 +16,7 @@ export type JsonOutput = {
   readonly dependenciesResults?: JsonReport[];
   readonly parametersResults?: JsonReport[];
   readonly unnecessarilyPublicCodeResults?: JsonReport[];
+  readonly unnecessarilyMutableFieldsResults?: JsonReport[];
   readonly exportResults?: JsonReport[];
   readonly summary: JsonReportSummary[];
 };

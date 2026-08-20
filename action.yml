@@ -89,6 +89,10 @@ inputs:
     description: 'Run "dcm check-unnecessarily-public-code".'
     required: false
     default: 'false'
+  check-unnecessarily-mutable-fields:
+    description: 'Run "dcm check-unnecessarily-mutable-fields".'
+    required: false
+    default: 'false'
   check-unused-code:
     description: 'Run "dcm check-unused-code".'
     required: false
