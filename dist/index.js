@@ -157,6 +157,7 @@ function runCommands(options, runnerId) {
             ...prepareCheckExportsCompleteness(options),
             ...prepareCheckParameters(options),
             ...prepareCheckUnnecessarilyPublicCode(options),
+            ...prepareCheckUnnecessarilyMutableFields(options),
             ...prepareCheckUnusedCode(options),
             ...prepareCheckUnusedFiles(options),
             ...prepareCheckUnusedL10n(options),
@@ -290,6 +291,13 @@ function prepareCheckUnnecessarilyPublicCode(options) {
         ? ['--unnecessarily-public-code']
         : [];
 }
+function prepareCheckUnnecessarilyMutableFields(options) {
+    return options.checkUnnecessarilyMutableFields &&
+        options.toolVersion &&
+        (0, semver_1.gte)(options.toolVersion, '1.39.0')
+        ? ['--unnecessarily-mutable-fields']
+        : [];
+}
 function prepareCheckUnusedCode(options) {
     if (options.checkUnusedCode) {
         const command = ['--unused-code'];
@@ -388,7 +396,7 @@ const run_1 = __nccwpck_require__(9950);
 const parse_1 = __nccwpck_require__(3607);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
         try {
             yield io.which('dcm', true);
             const toolVersion = yield (0, parse_1.getToolVersion)();
@@ -415,7 +423,8 @@ function run() {
                     ...((_j = json.dependenciesResults) !== null && _j !== void 0 ? _j : []),
                     ...((_k = json.parametersResults) !== null && _k !== void 0 ? _k : []),
                     ...((_l = json.unnecessarilyPublicCodeResults) !== null && _l !== void 0 ? _l : []),
-                    ...((_m = json.exportResults) !== null && _m !== void 0 ? _m : []),
+                    ...((_m = json.unnecessarilyMutableFieldsResults) !== null && _m !== void 0 ? _m : []),
+                    ...((_o = json.exportResults) !== null && _o !== void 0 ? _o : []),
                 ];
                 yield reporter.reportIssues(reports, runner.data.id, options.reportTitle);
                 const summary = (0, parse_1.parseSummary)(json.summary);
@@ -530,6 +539,7 @@ function getOptions(toolVersion) {
         checkExportsCompleteness: core.getBooleanInput('check-exports-completeness'),
         checkParameters: core.getBooleanInput('check-parameters'),
         checkUnnecessarilyPublicCode: core.getBooleanInput('check-unnecessarily-public-code'),
+        checkUnnecessarilyMutableFields: core.getBooleanInput('check-unnecessarily-mutable-fields'),
         checkUnusedCode: core.getBooleanInput('check-unused-code'),
         checkUnusedFiles: core.getBooleanInput('check-unused-files'),
         checkUnusedL10n: core.getBooleanInput('check-unused-l10n'),
